@@ -453,6 +453,19 @@ Stop only after the working vertical slice and short report are committed. Do no
 
 Turn the vertical slice into a judge-ready product with real evidence, a memorable two-device relay, measured proof, deployment and every required submission artifact.
 
+### Mandatory Run 1 repair gate (verified against `98de93e`)
+
+Run 1's typecheck, unit tests and production build are valid, but they only prove the synchronous fixture path. Before any real call, fix these inspected defects inside Run 2:
+
+1. **Repair asynchronous CALL-E reconciliation.** `advanceIncident` creates a call only while status is `authorized`. If CALL-E returns `in_progress`, the incident becomes `driver_task_pending`; later worker/webhook calls never retrieve and apply the completed result, so the live workflow stalls. Add one persisted reconciler for known `calle_call_id` values that retrieves the existing task, stores a deduplicated snapshot/observation, and resumes the state machine. Use it from both the webhook and recovery worker. Add a queued → completed test for both driver and dock; prove exactly two creates and retrieval-only recovery.
+2. **Fail closed outside the public replay.** `getCalleGateway()` currently falls back to `FixtureCalleGateway` when `CALLE_API_KEY` is absent, so operator endpoints can report simulated progress instead of `BLOCKED_LIVE`. Permit the fixture gateway only through `getDemoContext()`; live routes must return a clear non-2xx `BLOCKED_LIVE` response without credentials.
+3. **Enforce the access boundary.** The signed-session helpers exist but are unused. Protect all private incident reads and every create/authorize/advance/stop action with a server-verified short-lived operator session plus origin/CSRF checks. Remove the production fallback secret. Map webhook CallTask IDs to persisted intents; never choose an incident solely from untrusted webhook metadata. Apply provider webhook verification when supported, otherwise use a dedicated high-entropy webhook secret and document the limitation.
+4. **Make durable mode match its claims.** The migration currently implements atomic budget reservation only; `claimJob` is not a fenced lease and the recovery worker does not claim jobs. Implement atomic authority versioning, revision-guarded transitions and a real lease/claim procedure, then exercise the Supabase path with a focused integration test. Do not silently use process memory for a deployed live run.
+5. **Fix production handoff persistence.** The domain always creates `raw_token_display`, but the Supabase `handoff_tokens` table has no such column; inserting the full object can fail. Persist only the token hash and metadata, return the raw token once for delivery, and never expose hashes or raw tokens through private incident JSON. Enforce authority expiry before dispatch and make latest-version receipt/token queries deterministic.
+6. **Add repository proof.** `98de93e` has no reported GitHub status checks. Add one minimal CI workflow for typecheck, tests and production build, then require a green run before release.
+
+Do not spend live-call credits until items 1–5 pass. These repairs are part of Run 2, not a new run.
+
 ### Build order
 
 1. Read this master and docs/run-1.md. Inspect the actual application before editing.
