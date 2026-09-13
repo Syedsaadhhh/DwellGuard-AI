@@ -29,7 +29,9 @@ export class FixtureCalleGateway implements CalleGateway {
     const callId = `call_fixture_${this.mockCallCount}_${Date.now()}`;
     const providerCallId = `prov_${callId}`;
 
-    const isDriverCall = params.task.toLowerCase().includes("driver");
+    const isDriverCall = params.metadata?.call_type
+      ? params.metadata.call_type === "driver"
+      : !params.task.toLowerCase().includes("dock") && !params.task.toLowerCase().includes("receiving") && params.task.toLowerCase().includes("driver");
 
     let structuredResult: Record<string, unknown> = {};
 

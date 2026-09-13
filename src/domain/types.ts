@@ -95,6 +95,7 @@ export interface Observation {
   fee_amount?: number;
   fee_currency?: string;
   conditions?: string;
+  confirmation_basis?: string;
   raw_transcript_snippet?: string;
   evidence_text: string[];
   created_at: string;
