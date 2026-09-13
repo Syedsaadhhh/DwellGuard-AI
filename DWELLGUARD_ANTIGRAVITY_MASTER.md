@@ -555,7 +555,7 @@ Do not spend live-call credits until items 1–5 pass. These repairs are part of
    - CALL-E tasks created;
    - dispatcher phone calls after initial authorization.
    Show “Not measured” when evidence is absent. Never invent a human baseline or savings figure.
-7. Perform one focused visual pass at 1440, 1280 and 390 px. Capture ready, driver-result, confirmed and human-needed states. Fix hierarchy, overflow, contrast and focus issues only.
+7. Perform one focused visual pass at 1440, 1280, 768 and 390 px. Capture ready, driver-result, confirmed and human-needed states. Fix hierarchy, overflow, contrast and focus issues only.
 8. Verify stalled recovery, refresh during progress, duplicate launch, stop, expired handoff and fee refusal. Reuse unaffected test results; do not run optional suites repeatedly.
 9. Prepare the smallest reusable upstream contribution under the current CALL-E repository instructions. Package the authority → driver interval → dock confirmation contract with no-call fixtures and tests. Validate with the upstream command and open the required public PR when authorization allows.
 10. Finish README, architecture image, concise limitations/testing note, three-minute demo script and Devpost copy. Avoid internal prompts and competitive analysis in public-facing files.
@@ -578,7 +578,8 @@ Do not spend live-call credits until items 1–5 pass. These repairs are part of
 - Golden video contains actual CALL-E evidence or clearly states the exact live limitation.
 - The first verified call result changes the second request.
 - Main screen passes the ten-second cold-viewer test.
-- Desktop and driver phone show the same receipt version.
+- Desktop and driver phone show the same receipt version and Causal Appointment Proof ID.
+- The proof is deterministic, persists across restart and contains no phone number, name or raw transcript.
 - Negative scenario refuses a false green outcome.
 - Public replay works without keys and cannot place calls.
 - Private live controls remain protected.
