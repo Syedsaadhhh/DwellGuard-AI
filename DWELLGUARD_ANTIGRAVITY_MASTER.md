@@ -212,7 +212,41 @@ No cyberpunk, neon, glowing agent nodes, moving maps, fake waveform, decorative 
 | Hard failure | #A63F36 on #F9E9E6 |
 | Motion | 140–220 ms controls; maximum 300 ms state transition; reduced-motion safe |
 
-Use a locally served modern sans or system fallback. Use tabular numerals for times and fees.
+### Typography and density
+
+- Use **Instrument Sans** for navigation, body, buttons and operational labels, loaded through `next/font` or self-hosted with a full system fallback. Use **Newsreader** only for the main hook and confirmed appointment time/pass so the interface feels editorial rather than template-generated. If either font fails the production build, self-host it or keep the fallback; never load a blocking runtime font stylesheet.
+- Body and form text: 16 px minimum with 1.5–1.6 line height. Buttons: 15–16 px semibold. Metadata: 13–14 px; never below 12 px. Desktop page title: 48–60 px. Mobile title: 36–42 px. Confirmed appointment time: 56–72 px with tabular numerals.
+- Avoid all-caps paragraphs, excessive letter spacing, tiny gray copy and monospace outside IDs/timestamps. Preserve contrast at WCAG AA.
+
+### Responsive layout contract
+
+- At 1280–1440 px: restrained 208–224 px navigation rail, fluid main column and 320–360 px authority/pass column. The Plan Rail owns the main visual width.
+- At 768–1023 px: collapse the right column below the Plan Rail without shrinking text or controls.
+- At 390–767 px: use a simple sticky top bar, 16 px page gutters, one column, full-width actions and the appointment pass before secondary evidence.
+- Use `minmax(0, 1fr)`, `min-width: 0`, wrapping text and responsive padding. No fixed content width that forces the page to zoom or resize.
+- No horizontal page overflow, visible browser scrollbars caused by layout mistakes, draggable range sliders, nested scrolling panels or clipped menus. The Plan Rail is a static semantic visualization, not a slider; on mobile it must fit the viewport with no more than four readable ticks.
+- Never hide overflow to conceal a broken layout. Fix the offending width. Preserve ordinary vertical page scrolling and keyboard focus visibility.
+- Do not place every fact in a floating card. Use one primary working surface, one supporting surface and dividers/spacing for hierarchy.
+- Controls must use real buttons/links with 44 px minimum touch targets, clear labels, disabled/loading states and visible focus.
+- Motion is limited to the state transition already specified: 160–240 ms, reduced-motion safe, no entrance parade, parallax, bouncing, auto-scrolling or layout shift.
+
+### Ten-second visual composition
+
+Above the fold, show only:
+
+1. **Keep the dock plan moving.**
+2. The at-risk load, original appointment and new ETA.
+3. Current state in plain language.
+4. The Plan Rail plus **Why this plan is valid** causal band.
+5. One next action or the confirmed appointment pass.
+
+Supporting loads, full evidence and audit history sit below or behind explicit disclosure controls. A cold viewer must not need to open a menu to understand the incident.
+
+### Required implementation targets
+
+Apply this system coherently across `src/app/globals.css`, `src/app/layout.tsx`, `tailwind.config.ts`, navigation, Plan Rail, appointment pass, shipment desk, incident workspace, demo and driver handoff. Reuse components and tokens; do not create a second visual system.
+
+Before release, capture and inspect screenshots at 1440×900, 1280×800, 768×1024 and 390×844 for ready, driver-verified, confirmed and dispatcher-needed states. Fix overflow, hierarchy, truncated copy, focus, contrast and state ambiguity. Do not redesign after these states pass.
 
 ### Required routes
 
@@ -461,6 +495,28 @@ DwellGuard's memorable mechanism is not “AI makes calls.” It is this visible
 
 Make this undeniable within the first 25 seconds of the demo: show the late load, capture the driver's narrower interval and permission, collapse the Plan Rail to the valid overlap, and visibly rewrite the dock-request preview before call two. After confirmation, show the same receipt version on desktop and phone, then the desktop change to **Driver received** after the tap. Use the product label **Spoken Constraint Relay** once in About/architecture/demo narration; keep **Plan Rail** as the component name. Do not add another feature or dashboard section for this.
 
+
+### Irreplaceable product artifact — Causal Appointment Proof
+
+Add one compact, real artifact that competitors cannot reproduce with a nicer dashboard alone. Every confirmed plan must carry a **Causal Appointment Proof**: a deterministic, privacy-safe proof of why this exact appointment was allowed.
+
+The proof chain is:
+
+**Frozen authority version → attributed driver interval and selection permission → derived overlap → attributed dock commitment → current receipt version → driver acknowledgment**
+
+Implementation requirements:
+
+- Build a canonical JSON payload from incident ID, authority version, both top-level CALL-E CallTask IDs, normalized driver interval and permission, derived overlap, exact dock time/door/fee/currency/conditions, receipt version and acknowledgment timestamp when present.
+- Exclude phone numbers, names, raw transcripts, API keys and provider response dumps.
+- Compute SHA-256 on the server and persist the complete payload plus a short display ID such as `DG-PROOF-7A91C2E4`. Do not call it blockchain.
+- Finalize a proof only when every required causal link is valid. Missing, conflicting, expired or conditional evidence leaves an amber broken link and ends as **Dispatcher needed**; it must never produce a green proof.
+- The same proof ID and receipt version must appear on the desktop appointment pass and driver handoff page. The acknowledgment appends a final auditable event without changing the already-confirmed appointment facts.
+- Show the chain directly below the Plan Rail as one quiet band titled **Why this plan is valid**. Each link shows one fact and source, not internal jargon. Keep detailed evidence expandable.
+- Add focused tests: canonical ordering is stable; changing any appointment fact changes the hash; missing evidence cannot finalize; the payload contains no phone number/name/transcript; restart/Supabase retrieval returns the same proof.
+- In the demo, hold desktop and phone together on the matching proof ID, then tap acknowledgment and show the last link change to **Driver received**.
+
+This is not an extra analytics feature. It is DwellGuard's inspectable trust artifact and the technical reason the visual relay is credible.
+
 ### Mandatory Run 1 repair gate (verified against `98de93e`)
 
 Run 1's typecheck, unit tests and production build are valid, but they only prove the synchronous fixture path. Before any real call, fix these inspected defects inside Run 2:
@@ -486,8 +542,9 @@ Do not spend live-call credits until items 1–5 pass. These repairs are part of
    - exact confirmation or truthful human-needed outcome;
    - driver browser acknowledgment.
 4. Persist sanitized timestamps and call references. Never commit phone numbers, keys, private transcripts or raw recordings.
-5. Implement the wow transition:
+5. Implement the wow transition and Causal Appointment Proof:
    - Plan Rail changes from authority to verified driver overlap;
+   - the **Why this plan is valid** chain fills from persisted evidence and produces the same privacy-safe proof ID on desktop and driver phone;
    - dock request preview visibly updates before dispatch;
    - appointment pass appears after dock evidence;
    - driver phone receives the same receipt;
