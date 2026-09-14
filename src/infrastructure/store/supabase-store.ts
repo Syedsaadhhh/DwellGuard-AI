@@ -18,10 +18,10 @@ export class SupabaseStore implements Store {
 
   constructor(url?: string, key?: string) {
     const supabaseUrl = url || process.env.SUPABASE_URL;
-    const supabaseKey = key || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
+    const supabaseKey = key || process.env.SUPABASE_SERVICE_ROLE_KEY;
     if (!supabaseUrl || !supabaseKey) {
       throw new Error(
-        "SupabaseStore requires SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY / SUPABASE_ANON_KEY in environment"
+        "SupabaseStore requires SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in the server environment"
       );
     }
     this.client = createClient(supabaseUrl, supabaseKey);
@@ -54,9 +54,13 @@ export class SupabaseStore implements Store {
         updated_at: new Date().toISOString(),
       })
       .eq("id", incident.id)
+      .eq("state_revision", incident.state_revision)
       .select()
-      .single();
+      .maybeSingle();
     if (error) throw error;
+    if (!data) {
+      throw new Error("STALE_INCIDENT_REVISION: Incident changed before this update completed.");
+    }
     return data;
   }
 
@@ -64,35 +68,21 @@ export class SupabaseStore implements Store {
     incidentId: string,
     authority: Omit<AuthorityVersion, "id" | "incident_id" | "version" | "created_at">
   ): Promise<AuthorityVersion> {
-    const { data: currentVersions } = await this.client
-      .from("authority_versions")
-      .select("version")
-      .eq("incident_id", incidentId)
-      .order("version", { ascending: false });
-
-    const newVersionNum = (currentVersions?.[0]?.version ?? 0) + 1;
-    const authRecord = {
-      ...authority,
-      id: `auth_${incidentId}_v${newVersionNum}`,
-      incident_id: incidentId,
-      version: newVersionNum,
-      created_at: new Date().toISOString(),
-    };
-
-    const { data, error } = await this.client.from("authority_versions").insert(authRecord).select().single();
+    const { data, error } = await this.client.rpc("freeze_authority_version", {
+      p_incident_id: incidentId,
+      p_earliest: authority.earliest_time,
+      p_latest: authority.latest_time,
+      p_timezone: authority.timezone,
+      p_fee_ceiling: authority.fee_ceiling,
+      p_currency: authority.currency,
+      p_budget: authority.budget,
+      p_allow_selection: authority.allow_selection_inside_interval,
+      p_expires_at: authority.expires_at,
+    });
     if (error) throw error;
-
-    await this.client
-      .from("incidents")
-      .update({
-        authority_version: newVersionNum,
-        status: "authorized",
-        state_revision: (await this.getIncident(incidentId))?.state_revision || 1,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", incidentId);
-
-    return data;
+    const record = data?.[0]?.auth_record;
+    if (!record) throw new Error("AUTHORITY_FREEZE_FAILED");
+    return record as AuthorityVersion;
   }
 
   async getLatestAuthority(incidentId: string): Promise<AuthorityVersion | null> {
@@ -166,13 +156,13 @@ export class SupabaseStore implements Store {
   }
 
   async saveCallSnapshot(snapshot: CallSnapshot): Promise<CallSnapshot> {
-    const { data, error } = await this.client.from("call_snapshots").insert(snapshot).select().single();
+    const { data, error } = await this.client.from("call_snapshots").upsert(snapshot).select().single();
     if (error) throw error;
     return data;
   }
 
   async saveObservation(observation: Observation): Promise<Observation> {
-    const { data, error } = await this.client.from("observations").insert(observation).select().single();
+    const { data, error } = await this.client.from("observations").upsert(observation).select().single();
     if (error) throw error;
     return data;
   }
@@ -192,22 +182,15 @@ export class SupabaseStore implements Store {
     workerId: string,
     leaseDurationMs: number
   ): Promise<{ claimed: boolean; job?: WorkflowJob }> {
-    const now = new Date();
-    const expiresAt = new Date(now.getTime() + leaseDurationMs).toISOString();
-
-    const { data, error } = await this.client
-      .from("workflow_jobs")
-      .update({
-        lease_owner: workerId,
-        lease_expires_at: expiresAt,
-        status: "running",
-      })
-      .eq("id", jobId)
-      .select()
-      .maybeSingle();
-
-    if (error || !data) return { claimed: false };
-    return { claimed: true, job: data };
+    const { data, error } = await this.client.rpc("claim_workflow_job", {
+      p_job_id: jobId,
+      p_worker_id: workerId,
+      p_lease_ms: leaseDurationMs,
+    });
+    if (error) throw error;
+    const result = data?.[0];
+    if (!result?.claimed || !result.job_record) return { claimed: false };
+    return { claimed: true, job: result.job_record as WorkflowJob };
   }
 
   async completeJob(jobId: string): Promise<void> {
@@ -335,7 +318,6 @@ export class SupabaseStore implements Store {
     // Update CausalProof chain if present
     const existingProof = await this.getCausalProof(token.incident_id, token.receipt_version);
     if (existingProof) {
-      existingProof.canonical_payload.acknowledged_at = ack.acknowledged_at;
       const ackLink = existingProof.chain.find((l) => l.step === "driver_received");
       if (ackLink) {
         ackLink.status = "valid";
