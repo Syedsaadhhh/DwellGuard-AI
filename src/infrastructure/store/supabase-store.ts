@@ -80,8 +80,10 @@ export class SupabaseStore implements Store {
       p_expires_at: authority.expires_at,
     });
     if (error) throw error;
-    const record = data?.[0]?.auth_record;
-    if (!record) throw new Error("AUTHORITY_FREEZE_FAILED");
+    // PostgREST expands a single composite return value into the row fields.
+    // Keep compatibility with a nested response if the RPC representation changes.
+    const record = data?.[0]?.auth_record ?? data?.[0];
+    if (!record?.id) throw new Error("AUTHORITY_FREEZE_FAILED");
     return record as AuthorityVersion;
   }
 
