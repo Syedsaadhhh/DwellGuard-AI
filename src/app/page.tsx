@@ -1,10 +1,24 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { getStore } from "@/server/context";
 import { formatLocalTime } from "@/domain/workflow/interval";
+import {
+  OPERATOR_COOKIE_NAME,
+  verifySessionToken,
+} from "@/server/auth/session";
 
 export const revalidate = 0;
 
 export default async function HomePage() {
+  let authenticated = false;
+  try {
+    authenticated = verifySessionToken(cookies().get(OPERATOR_COOKIE_NAME)?.value);
+  } catch {
+    authenticated = false;
+  }
+  if (!authenticated) redirect("/demo");
+
   const store = getStore();
   const incidents = await store.listIncidents();
 
