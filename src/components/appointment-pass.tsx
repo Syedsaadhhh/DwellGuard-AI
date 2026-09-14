@@ -9,9 +9,15 @@ interface AppointmentPassProps {
   receipt: Receipt;
   incident: Incident;
   handoffToken?: HandoffToken | null;
+  demoMode?: boolean;
 }
 
-export function AppointmentPass({ receipt, incident, handoffToken }: AppointmentPassProps) {
+export function AppointmentPass({
+  receipt,
+  incident,
+  handoffToken,
+  demoMode = false,
+}: AppointmentPassProps) {
   const confirmedTimeFmt = formatLocalTime(receipt.confirmed_time, receipt.timezone);
   const dateFmt = new Date(receipt.confirmed_time).toLocaleDateString("en-US", {
     weekday: "long",
@@ -121,7 +127,7 @@ export function AppointmentPass({ receipt, incident, handoffToken }: Appointment
 
         {tokenDisplay && (
           <Link
-            href={`/handoff/${tokenDisplay}`}
+            href={demoMode ? "/handoff/demo" : `/handoff/${tokenDisplay}`}
             target="_blank"
             className="text-sm px-3 py-1.5 rounded font-semibold bg-white/90 text-ink-primary hover:bg-white shadow-sm border border-edge/50 flex-shrink-0 ml-3"
           >
