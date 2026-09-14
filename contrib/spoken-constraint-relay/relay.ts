@@ -1,5 +1,5 @@
 /**
- * DwellGuard Spoken Constraint Relay — CALL-E Reference Pattern
+ * DwellGuard Spoken Constraint Relay: CALL-E Reference Pattern
  *
  * Implements a sequential two-call voice authority chain:
  * 1. Call Driver to capture actual arrival boundary and permission to select inside that window.
