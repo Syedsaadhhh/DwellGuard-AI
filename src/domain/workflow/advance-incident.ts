@@ -54,7 +54,10 @@ export async function advanceIncident(
   }
 
   // STAGE 1: Launch Driver Call
-  if (incident.status === "authorized") {
+  if (
+    incident.status === "authorized" ||
+    (incident.status === "driver_task_pending" && !incident.driver_calle_call_id)
+  ) {
     const idempotencyKey = `idem_driver_${incident.id}_v${incident.authority_version}`;
     let intent = await store.getCallIntentByIdempotencyKey(idempotencyKey);
 
@@ -164,7 +167,12 @@ export async function advanceIncident(
   const observations = await store.getObservations(incident.id);
   const driverObs = observations.find((o) => o.speaker_role === "driver");
 
-  if (driverObs && (incident.status === "driver_task_pending" || (incident.status as string) === "authorized")) {
+  if (
+    driverObs &&
+    (incident.status === "driver_task_pending" ||
+      (incident.status as string) === "authorized" ||
+      (incident.status === "dock_task_pending" && !incident.dock_calle_call_id))
+  ) {
     const driverCheck = validateDriverEvidence(driverObs);
     if (!driverCheck.permitted || !driverCheck.validInterval) {
       incident.status = "dispatcher_needed";
