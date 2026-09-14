@@ -161,10 +161,10 @@ export default function PublicDemoPage() {
       {/* Demo Controls Bar */}
       <div className="bg-canvas-paper border border-edge rounded-lg p-4 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
         {/* Play / Pause / Reset Buttons */}
-        <div className="flex items-center space-x-3 w-full md:w-auto">
+        <div className="grid w-full grid-cols-2 gap-3 md:flex md:w-auto md:items-center">
           <button
             onClick={handlePlayPause}
-            className={`px-5 py-2 rounded font-bold text-sm uppercase tracking-wider transition-colors shadow-sm ${
+            className={`col-span-2 px-5 py-2 rounded font-bold text-sm uppercase tracking-wider transition-colors shadow-sm md:col-span-1 ${
               isPlaying
                 ? "bg-state-attention-bg text-state-attention-text border border-state-attention-border"
                 : "bg-action-primary text-white hover:bg-action-hover"
@@ -189,7 +189,7 @@ export default function PublicDemoPage() {
         </div>
 
         {/* Step Indicator */}
-        <div className="flex items-center space-x-2 text-sm font-medium text-ink-secondary">
+        <div className="flex w-full flex-wrap items-center gap-2 text-sm font-medium text-ink-secondary md:w-auto">
           <span>Step {currentStep}/4:</span>
           <span className="font-bold text-ink-primary">
             {currentStep === 0 && "1. At-Risk Load Initialized"}
@@ -201,8 +201,8 @@ export default function PublicDemoPage() {
         </div>
 
         {/* Scenario Switcher */}
-        <div className="flex items-center space-x-2 text-sm">
-          <span className="text-ink-muted">Scenario:</span>
+        <div className="grid w-full grid-cols-2 gap-2 text-sm md:flex md:w-auto md:items-center">
+          <span className="col-span-2 text-ink-muted md:col-span-1">Scenario:</span>
           <button
             onClick={() => resetFlow("positive")}
             className={`px-3 py-1.5 rounded font-semibold text-sm transition-colors ${
