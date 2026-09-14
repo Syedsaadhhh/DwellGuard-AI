@@ -10,6 +10,7 @@ import {
   HandoffToken,
   HandoffAcknowledgment,
   AuditEvent,
+  CausalProof,
 } from "@/domain/types";
 
 export class MemoryStore implements Store {
@@ -23,6 +24,7 @@ export class MemoryStore implements Store {
   private handoffTokens = new Map<string, HandoffToken>(); // key is token_hash
   private handoffAcks = new Map<string, HandoffAcknowledgment>();
   private auditEvents = new Map<string, AuditEvent[]>();
+  private causalProofs = new Map<string, CausalProof>(); // key is `${incident_id}_v${version}`
 
   constructor(seedDefault = true) {
     if (seedDefault) {
@@ -72,6 +74,7 @@ export class MemoryStore implements Store {
       authority_version: 1,
       state_revision: 4,
       task_budget_remaining: 2,
+      causal_proof_short_id: "DG-PROOF-9F42A1B8",
       created_at: new Date(Date.now() - 3600000).toISOString(),
       updated_at: new Date(Date.now() - 1800000).toISOString(),
     };
@@ -202,6 +205,9 @@ export class MemoryStore implements Store {
     if (!incident) {
       return { success: false, remaining: 0 };
     }
+    if (incident.task_budget_remaining === undefined) {
+      incident.task_budget_remaining = 2;
+    }
     if (incident.task_budget_remaining >= count) {
       incident.task_budget_remaining -= count;
       incident.updated_at = new Date().toISOString();
@@ -211,10 +217,11 @@ export class MemoryStore implements Store {
   }
 
   async saveCallIntent(intent: CallIntent): Promise<CallIntent> {
-    // Unique idempotency key check
-    for (const existing of this.callIntents.values()) {
-      if (existing.idempotency_key === intent.idempotency_key) {
-        return { ...existing };
+    for (const [id, existing] of this.callIntents.entries()) {
+      if (existing.id === intent.id || existing.idempotency_key === intent.idempotency_key) {
+        const merged = { ...existing, ...intent };
+        this.callIntents.set(id, merged);
+        return { ...merged };
       }
     }
     this.callIntents.set(intent.id, { ...intent });
@@ -235,6 +242,15 @@ export class MemoryStore implements Store {
     return null;
   }
 
+  async getCallIntentByCalleCallId(calleCallId: string): Promise<CallIntent | null> {
+    for (const intent of this.callIntents.values()) {
+      if (intent.calle_call_id === calleCallId) {
+        return { ...intent };
+      }
+    }
+    return null;
+  }
+
   async saveCallSnapshot(snapshot: CallSnapshot): Promise<CallSnapshot> {
     this.callSnapshots.set(snapshot.id, { ...snapshot });
     return { ...snapshot };
@@ -242,7 +258,15 @@ export class MemoryStore implements Store {
 
   async saveObservation(observation: Observation): Promise<Observation> {
     const list = this.observations.get(observation.incident_id) || [];
-    list.push({ ...observation });
+    // Deduplicate by calle_call_id and speaker_role
+    const existingIdx = list.findIndex(
+      (o) => o.calle_call_id === observation.calle_call_id && o.speaker_role === observation.speaker_role
+    );
+    if (existingIdx >= 0) {
+      list[existingIdx] = { ...observation };
+    } else {
+      list.push({ ...observation });
+    }
     this.observations.set(observation.incident_id, list);
     return { ...observation };
   }
@@ -257,23 +281,33 @@ export class MemoryStore implements Store {
     workerId: string,
     leaseDurationMs: number
   ): Promise<{ claimed: boolean; job?: WorkflowJob }> {
-    const job = this.workflowJobs.get(jobId);
+    let job = this.workflowJobs.get(jobId);
     const now = new Date();
-    if (job) {
-      if (
-        job.status === "running" &&
-        job.lease_expires_at &&
-        new Date(job.lease_expires_at) > now
-      ) {
-        return { claimed: false };
-      }
-      job.lease_owner = workerId;
-      job.lease_expires_at = new Date(now.getTime() + leaseDurationMs).toISOString();
-      job.status = "running";
-      job.attempts += 1;
-      return { claimed: true, job: { ...job } };
+    if (!job) {
+      // Auto-create job record if missing for fenced leasing
+      job = {
+        id: jobId,
+        incident_id: jobId.split("_")[1] || "unknown",
+        task_type: "advance",
+        status: "pending",
+        attempts: 0,
+        created_at: now.toISOString(),
+      };
+      this.workflowJobs.set(jobId, job);
     }
-    return { claimed: false };
+
+    if (
+      job.status === "running" &&
+      job.lease_expires_at &&
+      new Date(job.lease_expires_at) > now
+    ) {
+      return { claimed: false };
+    }
+    job.lease_owner = workerId;
+    job.lease_expires_at = new Date(now.getTime() + leaseDurationMs).toISOString();
+    job.status = "running";
+    job.attempts += 1;
+    return { claimed: true, job: { ...job } };
   }
 
   async completeJob(jobId: string): Promise<void> {
@@ -291,6 +325,8 @@ export class MemoryStore implements Store {
     if (incident) {
       incident.status = "plan_confirmed";
       incident.confirmed_receipt_id = receipt.id;
+      incident.causal_proof_id = receipt.causal_proof_id;
+      incident.causal_proof_short_id = receipt.causal_proof_short_id;
       incident.state_revision += 1;
       incident.updated_at = new Date().toISOString();
     }
@@ -303,10 +339,13 @@ export class MemoryStore implements Store {
   }
 
   async getReceiptByIncident(incidentId: string): Promise<Receipt | null> {
+    const matching: Receipt[] = [];
     for (const r of this.receipts.values()) {
-      if (r.incident_id === incidentId) return { ...r };
+      if (r.incident_id === incidentId) matching.push({ ...r });
     }
-    return null;
+    if (matching.length === 0) return null;
+    matching.sort((a, b) => b.version - a.version);
+    return matching[0];
   }
 
   async createHandoffToken(token: HandoffToken): Promise<HandoffToken> {
@@ -325,10 +364,13 @@ export class MemoryStore implements Store {
   }
 
   async getHandoffTokenByIncident(incidentId: string): Promise<HandoffToken | null> {
+    const matching: HandoffToken[] = [];
     for (const token of this.handoffTokens.values()) {
-      if (token.incident_id === incidentId) return { ...token };
+      if (token.incident_id === incidentId) matching.push({ ...token });
     }
-    return null;
+    if (matching.length === 0) return null;
+    matching.sort((a, b) => b.receipt_version - a.receipt_version);
+    return matching[0];
   }
 
   async acknowledgeHandoff(
@@ -369,8 +411,48 @@ export class MemoryStore implements Store {
       incident.updated_at = new Date().toISOString();
     }
 
+    // Update CausalProof chain if present
+    const proofKey = `${token.incident_id}_v${token.receipt_version}`;
+    const proof = this.causalProofs.get(proofKey);
+    if (proof) {
+      proof.canonical_payload.acknowledged_at = ack.acknowledged_at;
+      const ackLink = proof.chain.find((l) => l.step === "driver_received");
+      if (ackLink) {
+        ackLink.status = "valid";
+        ackLink.fact = `Acknowledged by driver at ${ack.acknowledged_at}`;
+      }
+    }
+
     const receipt = await this.getReceipt(token.receipt_id);
     return { success: true, token: { ...token }, receipt: receipt || undefined };
+  }
+
+  async saveCausalProof(proof: CausalProof): Promise<CausalProof> {
+    const key = `${proof.incident_id}_v${proof.receipt_version}`;
+    this.causalProofs.set(key, { ...proof });
+
+    const incident = this.incidents.get(proof.incident_id);
+    if (incident) {
+      incident.causal_proof_id = proof.id;
+      incident.causal_proof_short_id = proof.short_id;
+    }
+
+    return { ...proof };
+  }
+
+  async getCausalProof(incidentId: string, version?: number): Promise<CausalProof | null> {
+    if (version !== undefined) {
+      const proof = this.causalProofs.get(`${incidentId}_v${version}`);
+      return proof ? { ...proof } : null;
+    }
+    // Latest version
+    const matching: CausalProof[] = [];
+    for (const p of this.causalProofs.values()) {
+      if (p.incident_id === incidentId) matching.push({ ...p });
+    }
+    if (matching.length === 0) return null;
+    matching.sort((a, b) => b.receipt_version - a.receipt_version);
+    return matching[0];
   }
 
   async recordAuditEvent(event: Omit<AuditEvent, "id" | "created_at">): Promise<AuditEvent> {

@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { PlanRail } from "@/components/plan-rail";
 import { AppointmentPass } from "@/components/appointment-pass";
-import { Incident, AuthorityVersion, Observation, Receipt, HandoffToken, AuditEvent } from "@/domain/types";
+import { Incident, AuthorityVersion, Observation, Receipt, HandoffToken, AuditEvent, CausalProof } from "@/domain/types";
 import { formatLocalTime } from "@/domain/workflow/interval";
 
 export default function IncidentWorkspacePage() {
@@ -17,6 +17,7 @@ export default function IncidentWorkspacePage() {
   const [observations, setObservations] = useState<Observation[]>([]);
   const [receipt, setReceipt] = useState<Receipt | null>(null);
   const [handoffToken, setHandoffToken] = useState<HandoffToken | null>(null);
+  const [causalProof, setCausalProof] = useState<CausalProof | null>(null);
   const [auditEvents, setAuditEvents] = useState<AuditEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
@@ -39,6 +40,7 @@ export default function IncidentWorkspacePage() {
       setObservations(data.observations || []);
       setReceipt(data.receipt);
       setHandoffToken(data.handoffToken);
+      setCausalProof(data.causalProof || null);
       setAuditEvents(data.auditEvents || []);
     } catch (err) {
       console.error(err);
@@ -227,6 +229,7 @@ export default function IncidentWorkspacePage() {
         driverObservation={driverObs}
         dockObservation={dockObs}
         receipt={receipt}
+        causalProof={causalProof}
       />
 
       {/* Main Action & Result Surface */}

@@ -10,6 +10,7 @@ export default function DriverHandoffPage() {
   const token = params?.token as string;
 
   const [receipt, setReceipt] = useState<Receipt | null>(null);
+  const [causalProof, setCausalProof] = useState<any>(null);
   const [loadRef, setLoadRef] = useState<string>("");
   const [carrier, setCarrier] = useState<string>("");
   const [acknowledged, setAcknowledged] = useState(false);
@@ -34,6 +35,7 @@ export default function DriverHandoffPage() {
 
         const data = await res.json();
         setReceipt(data.receipt);
+        setCausalProof(data.causalProof || null);
         setLoadRef(data.incident?.load_ref || data.receipt?.load_ref || "");
         setCarrier(data.incident?.carrier || "");
         if (data.tokenRecord?.acknowledged_at) {
@@ -65,6 +67,9 @@ export default function DriverHandoffPage() {
         const data = await res.json();
         setAcknowledged(true);
         setAcknowledgedAt(data.acknowledged_at || new Date().toISOString());
+        if (data.causalProof) {
+          setCausalProof(data.causalProof);
+        }
       }
     } catch (err: any) {
       alert(err.message || "Network error");
@@ -100,6 +105,8 @@ export default function DriverHandoffPage() {
     timeZone: receipt.timezone,
   });
 
+  const proofId = receipt.causal_proof_short_id || causalProof?.short_id;
+
   return (
     <div className="max-w-md mx-auto py-4 px-2 space-y-5">
       {/* Mobile Header */}
@@ -115,6 +122,17 @@ export default function DriverHandoffPage() {
 
       {/* Main Appointment Pass Surface */}
       <div className="bg-canvas-paper border border-edge rounded-2xl p-6 shadow-sm space-y-5">
+        <div className="flex items-center justify-between border-b border-edge pb-3 text-xs">
+          <span className="text-[11px] font-semibold text-ink-muted uppercase">
+            Receipt v{receipt.version}
+          </span>
+          {proofId && (
+            <span className="font-mono text-xs px-2 py-0.5 rounded bg-blue-50 text-[#1B365D] border border-blue-200 font-bold">
+              {proofId}
+            </span>
+          )}
+        </div>
+
         <div className="text-center pb-4 border-b border-edge">
           <span className="text-xs uppercase font-bold text-ink-muted tracking-wider block">
             Your Confirmed Check-In Slot
@@ -150,6 +168,22 @@ export default function DriverHandoffPage() {
               {receipt.fee_amount === 0 ? "No Additional Fee ($0.00)" : `$${receipt.fee_amount} ${receipt.fee_currency}`}
             </span>
           </div>
+        </div>
+
+        {/* Causal Chain Confirmation Banner */}
+        <div className="p-3 bg-canvas-subtle/60 rounded-xl border border-edge text-[11px] space-y-1">
+          <div className="flex items-center justify-between">
+            <span className="font-bold text-ink-primary uppercase tracking-wider text-[10px]">
+              Causal Appointment Proof
+            </span>
+            <span className="text-emerald-700 font-semibold flex items-center space-x-1">
+              <span>&#10003;</span>
+              <span>Deterministic Pass</span>
+            </span>
+          </div>
+          <p className="text-ink-secondary text-[11px]">
+            Agreed under Dispatcher Authority v{receipt.version} and driver arrival constraints. Verified with {receipt.dock_name}.
+          </p>
         </div>
 
         {/* Big Touch-Friendly Action Button */}

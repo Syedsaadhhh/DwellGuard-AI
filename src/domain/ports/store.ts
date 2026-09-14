@@ -9,6 +9,7 @@ import {
   HandoffToken,
   HandoffAcknowledgment,
   AuditEvent,
+  CausalProof,
 } from "../types";
 
 export interface Store {
@@ -33,6 +34,7 @@ export interface Store {
   saveCallIntent(intent: CallIntent): Promise<CallIntent>;
   getCallIntent(id: string): Promise<CallIntent | null>;
   getCallIntentByIdempotencyKey(key: string): Promise<CallIntent | null>;
+  getCallIntentByCalleCallId(calleCallId: string): Promise<CallIntent | null>;
   saveCallSnapshot(snapshot: CallSnapshot): Promise<CallSnapshot>;
 
   // Observations
@@ -60,6 +62,10 @@ export interface Store {
     tokenHash: string,
     ack: { acknowledged_at: string; client_ip_hash?: string; user_agent?: string }
   ): Promise<{ success: boolean; token?: HandoffToken; receipt?: Receipt }>;
+
+  // Causal Appointment Proofs
+  saveCausalProof(proof: CausalProof): Promise<CausalProof>;
+  getCausalProof(incidentId: string, version?: number): Promise<CausalProof | null>;
 
   // Audit Events
   recordAuditEvent(event: Omit<AuditEvent, "id" | "created_at">): Promise<AuditEvent>;

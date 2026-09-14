@@ -10,6 +10,7 @@ export async function GET() {
   const observations = await store.getObservations(incidentId);
   const receipt = await store.getReceiptByIncident(incidentId);
   const handoffToken = await store.getHandoffTokenByIncident(incidentId);
+  const causalProof = await store.getCausalProof(incidentId);
   const auditEvents = await store.getAuditEvents(incidentId);
 
   return NextResponse.json({
@@ -18,6 +19,7 @@ export async function GET() {
     observations,
     receipt,
     handoffToken,
+    causalProof,
     auditEvents,
   });
 }
@@ -64,6 +66,7 @@ export async function POST(req: Request) {
       const obs = await demo.store.getObservations(incidentId);
       const rcpt = await demo.store.getReceiptByIncident(incidentId);
       const token = await demo.store.getHandoffTokenByIncident(incidentId);
+      const causalProof = await demo.store.getCausalProof(incidentId);
 
       return NextResponse.json({
         incident: updated,
@@ -71,6 +74,7 @@ export async function POST(req: Request) {
         observations: obs,
         receipt: rcpt,
         handoffToken: token,
+        causalProof,
       });
     }
 
@@ -86,10 +90,12 @@ export async function POST(req: Request) {
       });
 
       const updated = await demo.store.getIncident(incidentId);
+      const causalProof = await demo.store.getCausalProof(incidentId);
       return NextResponse.json({
         acknowledged: ackRes.success,
         incident: updated,
         receipt: ackRes.receipt,
+        causalProof,
       });
     }
 
@@ -126,6 +132,7 @@ export async function POST(req: Request) {
     const observations = await demo.store.getObservations(incidentId);
     const receipt = await demo.store.getReceiptByIncident(incidentId);
     const handoffToken = await demo.store.getHandoffTokenByIncident(incidentId);
+    const causalProof = await demo.store.getCausalProof(incidentId);
 
     return NextResponse.json({
       incident: updated,
@@ -133,6 +140,7 @@ export async function POST(req: Request) {
       observations,
       receipt,
       handoffToken,
+      causalProof,
     });
   } catch (err: any) {
     return NextResponse.json({ error: err.message || "Demo action failed" }, { status: 500 });

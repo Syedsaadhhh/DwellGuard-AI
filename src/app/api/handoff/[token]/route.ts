@@ -24,6 +24,8 @@ export async function GET(req: Request, { params }: { params: { token: string } 
 
   const isExpired = new Date(tokenRecord.expires_at) < new Date();
 
+  const causalProof = await store.getCausalProof(tokenRecord.incident_id, tokenRecord.receipt_version);
+
   return NextResponse.json({
     tokenRecord: {
       id: tokenRecord.id,
@@ -34,6 +36,7 @@ export async function GET(req: Request, { params }: { params: { token: string } 
       isExpired,
     },
     receipt,
+    causalProof,
     incident: incident
       ? {
           load_ref: incident.load_ref,
@@ -73,9 +76,12 @@ export async function POST(req: Request, { params }: { params: { token: string }
     return NextResponse.json({ error: "Handoff token has expired or is invalid." }, { status: 400 });
   }
 
+  const updatedProof = await store.getCausalProof(tokenRecord.incident_id, tokenRecord.receipt_version);
+
   return NextResponse.json({
     acknowledged: true,
     acknowledged_at: result.token?.acknowledged_at,
     receipt: result.receipt,
+    causalProof: updatedProof,
   });
 }

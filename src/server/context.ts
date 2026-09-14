@@ -2,7 +2,7 @@ import { Store } from "@/domain/ports/store";
 import { MemoryStore } from "@/infrastructure/store/memory-store";
 import { SupabaseStore } from "@/infrastructure/store/supabase-store";
 import { CalleGateway } from "@/domain/ports/calle-gateway";
-import { LiveCalleGateway } from "@/infrastructure/calle/live-gateway";
+import { LiveCalleGateway, OFFICIAL_CALLE_BASE_URL } from "@/infrastructure/calle/live-gateway";
 import { FixtureCalleGateway } from "@/infrastructure/calle/fixture-gateway";
 import { Clock, SystemClock } from "@/domain/ports/clock";
 import { TokenGenerator, CryptoTokenGenerator } from "@/domain/ports/tokens";
@@ -21,12 +21,17 @@ export function getStore(): Store {
   return globalMemoryStore;
 }
 
+/**
+ * Fails closed in live mode:
+ * Throws BLOCKED_LIVE error if CALLE_API_KEY is missing. Never falls back to fixture gateway.
+ */
 export function getCalleGateway(): CalleGateway {
-  if (process.env.CALLE_API_KEY) {
-    return new LiveCalleGateway(process.env.CALLE_API_KEY, process.env.CALLE_BASE_URL);
+  const apiKey = process.env.CALLE_API_KEY;
+  if (!apiKey) {
+    throw new Error("BLOCKED_LIVE: CALLE_API_KEY is not configured in the environment. Live calls cannot be placed.");
   }
-  // Default to Fixture gateway for local execution / testing when no credentials exist
-  return new FixtureCalleGateway("positive");
+  const baseUrl = process.env.CALLE_BASE_URL || OFFICIAL_CALLE_BASE_URL;
+  return new LiveCalleGateway(apiKey, baseUrl);
 }
 
 export function getClock(): Clock {

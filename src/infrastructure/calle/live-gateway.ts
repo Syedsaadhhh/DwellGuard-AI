@@ -1,13 +1,21 @@
 import { CalleClient } from "@call-e/calle";
 import { CalleGateway, CreateCallTaskParams, CalleTaskResult } from "@/domain/ports/calle-gateway";
 
+export const OFFICIAL_CALLE_BASE_URL = "https://api.heycall-e.com";
+
 export class LiveCalleGateway implements CalleGateway {
   private client: CalleClient;
+  public readonly baseUrl: string;
 
   constructor(apiKey: string, baseUrl?: string, customFetch?: (input: Request) => Promise<Response>) {
+    if (!apiKey) {
+      throw new Error("BLOCKED_LIVE: Missing required apiKey for LiveCalleGateway.");
+    }
+    this.baseUrl = baseUrl || process.env.CALLE_BASE_URL || OFFICIAL_CALLE_BASE_URL;
+
     this.client = new CalleClient({
       apiKey,
-      baseUrl: baseUrl || "https://api.call-e.com",
+      baseUrl: this.baseUrl,
       fetch: customFetch,
     });
   }

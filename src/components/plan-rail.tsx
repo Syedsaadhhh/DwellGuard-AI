@@ -2,7 +2,7 @@
 
 import React from "react";
 import { formatLocalTime } from "@/domain/workflow/interval";
-import { Incident, AuthorityVersion, Observation, Receipt } from "@/domain/types";
+import { Incident, AuthorityVersion, Observation, Receipt, CausalProof, CausalProofChainLink } from "@/domain/types";
 
 interface PlanRailProps {
   incident: Incident;
@@ -10,6 +10,7 @@ interface PlanRailProps {
   driverObservation?: Observation | null;
   dockObservation?: Observation | null;
   receipt?: Receipt | null;
+  causalProof?: CausalProof | null;
 }
 
 export function PlanRail({
@@ -18,7 +19,10 @@ export function PlanRail({
   driverObservation,
   dockObservation,
   receipt,
+  causalProof,
 }: PlanRailProps) {
+  const [expandedStep, setExpandedStep] = React.useState<string | null>(null);
+
   const origApptFmt = formatLocalTime(incident.original_appointment, authority?.timezone);
   const etaFmt = formatLocalTime(incident.updated_eta, authority?.timezone);
 
@@ -55,6 +59,82 @@ export function PlanRail({
     whatChangedText = `Dispatcher authorized arrival recovery between ${authStartFmt} and ${authEndFmt}. Calling driver to verify workable check-in window.`;
   } else {
     whatChangedText = `Initial arrival delay reported. Updated ETA is ${etaFmt} vs original ${origApptFmt} slot. Awaiting dispatcher authority limits.`;
+  }
+
+  // Compute or reuse 6-link proof chain
+  let chain: CausalProofChainLink[] = [];
+  if (causalProof?.chain) {
+    chain = causalProof.chain;
+  } else {
+    const authValid = !!authority;
+    const isDriverValid = !!driverObservation?.verified_interval_start && driverObservation?.selection_permitted === true;
+    const isDriverRefused = driverObservation && (!driverObservation.verified_interval_start || driverObservation.selection_permitted === false);
+    const hasOverlap = isDriverValid && !!authority;
+    const isDockValid = !!dockObservation?.confirmed_time && (dockObservation.fee_amount ?? 0) <= (authority?.fee_ceiling ?? 150);
+    const isDockBroken = dockObservation && (!dockObservation.confirmed_time || (dockObservation.fee_amount ?? 0) > (authority?.fee_ceiling ?? 150));
+    const isReceiptValid = !!receipt;
+    const isDriverReceived = incident.status === "driver_received";
+
+    chain = [
+      {
+        step: "authority",
+        title: "1. Frozen Authority",
+        fact: authority
+          ? `Allowed check-in ${authStartFmt}–${authEndFmt} · Fee ceiling $${authority.fee_ceiling} ${authority.currency}`
+          : "Awaiting dispatcher arrival recovery authorization",
+        source: authority ? `Dispatcher Authority v${authority.version}` : "Dispatcher Input",
+        status: authValid ? "valid" : "pending",
+      },
+      {
+        step: "driver",
+        title: "2. Driver Window & Permission",
+        fact: isDriverValid
+          ? `Workable ${drvStartFmt}–${drvEndFmt} · Slot selection authorized`
+          : isDriverRefused
+          ? "Driver arrival window missing or slot selection refused"
+          : "Awaiting driver spoken confirmation and permission",
+        source: driverObservation ? `Driver Voice Task (${driverObservation.calle_call_id || "completed"})` : "Pending CALL-E Call 1",
+        status: isDriverValid ? "valid" : isDriverRefused ? "broken" : "pending",
+      },
+      {
+        step: "overlap",
+        title: "3. Derived Overlap",
+        fact: hasOverlap
+          ? `Strict mathematical overlap: ${drvStartFmt}–${drvEndFmt}`
+          : "Awaiting valid driver arrival limits",
+        source: "DwellGuard Constraint Engine",
+        status: hasOverlap ? "valid" : "pending",
+      },
+      {
+        step: "dock",
+        title: "4. Dock Commitment",
+        fact: isDockValid
+          ? `Confirmed slot ${confirmedTimeFmt}${dockObservation?.door ? ` (${dockObservation.door})` : ""} · Fee: $${dockObservation?.fee_amount ?? 0}`
+          : isDockBroken
+          ? "Dock quoted slot outside overlap or fee exceeded ceiling"
+          : "Awaiting receiving dock explicit slot commitment",
+        source: dockObservation ? `Dock Voice Task (${dockObservation.calle_call_id || "completed"})` : "Pending CALL-E Call 2",
+        status: isDockValid ? "valid" : isDockBroken ? "broken" : "pending",
+      },
+      {
+        step: "receipt",
+        title: "5. Versioned Receipt Pass",
+        fact: isReceiptValid
+          ? `Official Appointment Pass v${receipt.version} generated`
+          : "Pending validated dock agreement",
+        source: receipt ? `Receipt #${receipt.id.slice(-8)}` : "DwellGuard Pass Generator",
+        status: isReceiptValid ? "valid" : "pending",
+      },
+      {
+        step: "driver_received",
+        title: "6. Driver Acknowledgment",
+        fact: isDriverReceived
+          ? "Driver acknowledged plan receipt via mobile handoff"
+          : "Awaiting driver mobile tap on handoff view",
+        source: isDriverReceived ? "Driver Browser Tap" : "Pending Handoff Link",
+        status: isDriverReceived ? "valid" : "pending",
+      },
+    ];
   }
 
   return (
@@ -169,6 +249,90 @@ export function PlanRail({
           </p>
         </div>
       )}
+
+      {/* Causal Appointment Proof: Why this plan is valid */}
+      <div className="border-t border-edge/80 pt-4 mt-2">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-3">
+          <div className="flex items-center space-x-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-ink-primary">
+              Why this plan is valid
+            </span>
+            <span className="text-[10px] px-2 py-0.5 rounded bg-canvas-subtle text-ink-muted border border-edge uppercase tracking-wider font-semibold">
+              Causal Audit Chain
+            </span>
+          </div>
+          {causalProof && (
+            <div className="flex items-center space-x-2 text-xs">
+              <span className="font-mono text-[11px] px-2 py-0.5 rounded bg-blue-50 text-[#1B365D] border border-blue-200 font-bold">
+                {causalProof.short_id}
+              </span>
+              <span className="text-[11px] text-ink-muted font-mono hidden md:inline" title={causalProof.proof_hash}>
+                SHA-256: {causalProof.proof_hash.slice(0, 10)}…
+              </span>
+            </div>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-xs">
+          {chain.map((link) => {
+            const isExpanded = expandedStep === link.step;
+            return (
+              <div
+                key={link.step}
+                onClick={() => setExpandedStep(isExpanded ? null : link.step)}
+                className={`p-2.5 rounded-md border transition-all cursor-pointer ${
+                  link.status === "valid"
+                    ? "bg-emerald-50/40 border-emerald-200/80 hover:bg-emerald-50/70"
+                    : link.status === "broken"
+                    ? "bg-amber-50/50 border-amber-200 hover:bg-amber-50/80"
+                    : "bg-canvas-subtle/40 border-edge/60 hover:bg-canvas-subtle/80 opacity-70"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-ink-primary text-[11px]">
+                    {link.title}
+                  </span>
+                  <span
+                    className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                      link.status === "valid"
+                        ? "bg-emerald-600 text-white"
+                        : link.status === "broken"
+                        ? "bg-amber-600 text-white"
+                        : "bg-edge text-ink-muted"
+                    }`}
+                  >
+                    {link.status === "valid" ? "✓" : link.status === "broken" ? "!" : "○"}
+                  </span>
+                </div>
+                <p className="text-[11px] text-ink-secondary mt-1 font-medium leading-snug">
+                  {link.fact}
+                </p>
+                <div className="mt-1.5 flex items-center justify-between text-[10px] text-ink-muted">
+                  <span className="truncate">{link.source}</span>
+                  <span className="text-action-primary hover:underline ml-1">
+                    {isExpanded ? "Hide" : "Inspect"}
+                  </span>
+                </div>
+                {isExpanded && (
+                  <div className="mt-2 pt-2 border-t border-edge/60 text-[10px] space-y-1 bg-white/60 p-2 rounded">
+                    <div>
+                      <strong className="text-ink-muted">Status:</strong>{" "}
+                      <span className="capitalize font-medium">{link.status}</span>
+                    </div>
+                    <div>
+                      <strong className="text-ink-muted">Step Key:</strong>{" "}
+                      <code className="font-mono text-[9px]">{link.step}</code>
+                    </div>
+                    <div>
+                      <strong className="text-ink-muted">Attribution:</strong> {link.source}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }

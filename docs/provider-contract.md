@@ -12,7 +12,7 @@ import { CalleClient } from "@call-e/calle";
 
 const client = new CalleClient({
   apiKey: process.env.CALLE_API_KEY!,
-  baseUrl: process.env.CALLE_BASE_URL || "https://api.call-e.com",
+  baseUrl: process.env.CALLE_BASE_URL || "https://api.heycall-e.com",
   fetch: customFetch, // optional injection for test transport & replay
 });
 ```

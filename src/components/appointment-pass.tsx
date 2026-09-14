@@ -36,9 +36,16 @@ export function AppointmentPass({ receipt, incident, handoffToken }: Appointment
             Verified Agreement
           </span>
         </div>
-        <span className="text-xs text-ink-muted tabular-nums">
-          Receipt #{receipt.id.slice(-8)} · v{receipt.version}
-        </span>
+        <div className="flex items-center space-x-2">
+          {receipt.causal_proof_short_id && (
+            <span className="font-mono text-xs px-2 py-0.5 rounded bg-blue-50 text-[#1B365D] border border-blue-200 font-bold">
+              {receipt.causal_proof_short_id}
+            </span>
+          )}
+          <span className="text-xs text-ink-muted tabular-nums">
+            Receipt #{receipt.id.slice(-8)} · v{receipt.version}
+          </span>
+        </div>
       </div>
 
       {/* Main Appointment Time Hero */}

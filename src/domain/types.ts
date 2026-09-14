@@ -1,6 +1,6 @@
 /**
  * DwellGuard Core Domain Types
- * Matches the 10 minimal persisted records and business entities specified in DWELLGUARD_ANTIGRAVITY_MASTER.md.
+ * Matches the 10 minimal persisted records, Causal Appointment Proof, and business entities.
  */
 
 export type IncidentStatus =
@@ -40,6 +40,8 @@ export interface Incident {
   dock_calle_call_id?: string;
   confirmed_receipt_id?: string;
   handoff_token_id?: string;
+  causal_proof_id?: string;
+  causal_proof_short_id?: string;
   resolution_reason?: string;
   created_at: string;
   updated_at: string;
@@ -124,6 +126,8 @@ export interface Receipt {
   fee_amount: number;
   fee_currency: string;
   confirmation_basis: string;
+  causal_proof_id?: string;
+  causal_proof_short_id?: string;
   created_at: string;
 }
 
@@ -133,7 +137,7 @@ export interface HandoffToken {
   receipt_id: string;
   receipt_version: number;
   token_hash: string; // SHA-256 hex
-  raw_token_display?: string; // Only stored in fixture mode / memory for test convenience
+  raw_token_display?: string; // Only returned once upon creation or in fixture mode
   expires_at: string;
   acknowledged_at?: string;
   created_at: string;
@@ -168,4 +172,44 @@ export interface OverlapResult {
   overlap?: TimeInterval;
   reason?: string;
   explanation: string;
+}
+
+export interface CausalProofPayload {
+  incident_id: string;
+  authority_version: number;
+  driver_call_id: string;
+  dock_call_id: string;
+  driver_interval_start: string;
+  driver_interval_end: string;
+  driver_selection_permitted: boolean;
+  overlap_start: string;
+  overlap_end: string;
+  dock_confirmed_time: string;
+  dock_door?: string;
+  dock_fee_amount: number;
+  dock_fee_currency: string;
+  dock_conditions?: string;
+  receipt_id: string;
+  receipt_version: number;
+  acknowledged_at?: string | null;
+}
+
+export interface CausalProofChainLink {
+  step: "authority" | "driver" | "overlap" | "dock" | "receipt" | "driver_received";
+  title: string;
+  fact: string;
+  source: string;
+  status: "valid" | "broken" | "pending";
+}
+
+export interface CausalProof {
+  id: string;
+  incident_id: string;
+  receipt_version: number;
+  proof_hash: string;
+  short_id: string; // e.g. DG-PROOF-7A91C2E4
+  canonical_payload: CausalProofPayload;
+  chain: CausalProofChainLink[];
+  status: "valid" | "broken";
+  created_at: string;
 }

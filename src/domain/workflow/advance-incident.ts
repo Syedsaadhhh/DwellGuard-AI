@@ -5,6 +5,7 @@ import { TokenGenerator } from "../ports/tokens";
 import { Incident, Observation, Receipt, HandoffToken } from "../types";
 import { computeIntervalIntersection } from "./interval";
 import { validateDriverEvidence, validateDockEvidence } from "./evidence";
+import { generateCausalProof } from "../proof/causal-proof";
 
 export interface AdvanceOptions {
   workerId?: string;
@@ -35,8 +36,21 @@ export async function advanceIncident(
 
   const authority = await store.getLatestAuthority(incidentId);
   if (!authority) {
-    // Cannot advance without frozen authority
     return incident;
+  }
+
+  // Enforce authority expiration before dispatch
+  if (new Date(authority.expires_at).getTime() < clock.now().getTime()) {
+    incident.status = "dispatcher_needed";
+    incident.resolution_reason = "Authority window expired before plan confirmation.";
+    await store.recordAuditEvent({
+      incident_id: incident.id,
+      authority_version: incident.authority_version,
+      state_revision: incident.state_revision,
+      event_type: "AUTHORITY_EXPIRED",
+      details: { expires_at: authority.expires_at },
+    });
+    return await store.updateIncident(incident);
   }
 
   // STAGE 1: Launch Driver Call
@@ -118,6 +132,30 @@ export async function advanceIncident(
         created_at: clock.isoNow(),
       };
       await store.saveObservation(obs);
+    }
+  }
+
+  // Check if driver call is pending in asynchronous mode
+  if (incident.status === "driver_task_pending" && incident.driver_calle_call_id) {
+    const existingObs = (await store.getObservations(incident.id)).find((o) => o.speaker_role === "driver");
+    if (!existingObs) {
+      const taskCheck = await gateway.getCallTask(incident.driver_calle_call_id);
+      if (taskCheck.status === "completed" && taskCheck.structuredResult) {
+        const res = taskCheck.structuredResult as Record<string, any>;
+        const obs: Observation = {
+          id: `obs_drv_${incident.id}`,
+          incident_id: incident.id,
+          calle_call_id: taskCheck.calleCallId,
+          speaker_role: "driver",
+          verified_interval_start: res.verified_interval_start,
+          verified_interval_end: res.verified_interval_end,
+          selection_permitted: res.selection_permitted ?? true,
+          evidence_text: Array.isArray(res.evidence_text) ? res.evidence_text : [res.summary || "Driver arrival confirmed"],
+          raw_transcript_snippet: taskCheck.summary || undefined,
+          created_at: clock.isoNow(),
+        };
+        await store.saveObservation(obs);
+      }
     }
   }
 
@@ -250,7 +288,34 @@ export async function advanceIncident(
     }
   }
 
-  // STAGE 3: Process Dock Observation and Finalize Receipt
+  // Check if dock call is pending in asynchronous mode
+  if (incident.status === "dock_task_pending" && incident.dock_calle_call_id) {
+    const existingDockObs = (await store.getObservations(incident.id)).find((o) => o.speaker_role === "dock");
+    if (!existingDockObs) {
+      const taskCheck = await gateway.getCallTask(incident.dock_calle_call_id);
+      if (taskCheck.status === "completed" && taskCheck.structuredResult) {
+        const res = taskCheck.structuredResult as Record<string, any>;
+        const obs: Observation = {
+          id: `obs_dock_${incident.id}`,
+          incident_id: incident.id,
+          calle_call_id: taskCheck.calleCallId,
+          speaker_role: "dock",
+          confirmed_time: res.confirmed_time,
+          door: res.door,
+          fee_amount: res.fee_amount ?? 0,
+          fee_currency: res.fee_currency || "USD",
+          conditions: res.conditions,
+          confirmation_basis: res.confirmation_basis || "Dock confirmed appointment slot",
+          evidence_text: Array.isArray(res.evidence_text) ? res.evidence_text : [res.summary || "Appointment confirmed"],
+          raw_transcript_snippet: taskCheck.summary || undefined,
+          created_at: clock.isoNow(),
+        };
+        await store.saveObservation(obs);
+      }
+    }
+  }
+
+  // STAGE 3: Process Dock Observation, Finalize Receipt & Causal Proof
   const updatedObs = await store.getObservations(incident.id);
   const dockObs = updatedObs.find((o) => o.speaker_role === "dock");
 
@@ -281,7 +346,7 @@ export async function advanceIncident(
       return await store.updateIncident(incident);
     }
 
-    // Receipt Finalization
+    // 1. Initial Receipt Object
     const receipt: Receipt = {
       id: `rcpt_${incident.id}_v${incident.authority_version}`,
       incident_id: incident.id,
@@ -296,9 +361,25 @@ export async function advanceIncident(
       confirmation_basis: dockObs.confirmation_basis || "Dock coordinator confirmed revised appointment",
       created_at: clock.isoNow(),
     };
+
+    // 2. Generate and store Causal Appointment Proof
+    const causalProof = generateCausalProof(
+      incident,
+      authority,
+      driverObsRec,
+      dockObs,
+      overlapResult.overlap!,
+      receipt,
+      null
+    );
+    await store.saveCausalProof(causalProof);
+
+    receipt.causal_proof_id = causalProof.id;
+    receipt.causal_proof_short_id = causalProof.short_id;
+
     await store.finalizeReceipt(receipt);
 
-    // Create Handoff Token (scoped to this receipt version)
+    // 3. Create Handoff Token (scoped to this receipt version)
     const { rawToken, tokenHash } = tokenGenerator.generateToken();
     const handoffToken: HandoffToken = {
       id: `tok_${incident.id}_${Date.now()}`,
@@ -306,7 +387,7 @@ export async function advanceIncident(
       receipt_id: receipt.id,
       receipt_version: receipt.version,
       token_hash: tokenHash,
-      raw_token_display: rawToken,
+      raw_token_display: rawToken, // Returned for distribution
       expires_at: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
       created_at: clock.isoNow(),
     };
@@ -315,12 +396,19 @@ export async function advanceIncident(
     incident.status = "plan_confirmed";
     incident.confirmed_receipt_id = receipt.id;
     incident.handoff_token_id = handoffToken.id;
+    incident.causal_proof_id = causalProof.id;
+    incident.causal_proof_short_id = causalProof.short_id;
+
     await store.recordAuditEvent({
       incident_id: incident.id,
       authority_version: incident.authority_version,
       state_revision: incident.state_revision,
       event_type: "PLAN_CONFIRMED",
-      details: { receipt_id: receipt.id, token_hash: tokenHash },
+      details: {
+        receipt_id: receipt.id,
+        proof_id: causalProof.id,
+        proof_short_id: causalProof.short_id,
+      },
     });
 
     return await store.updateIncident(incident);

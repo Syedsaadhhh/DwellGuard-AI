@@ -14,11 +14,12 @@ export default function AboutPage() {
 
       <div className="bg-canvas-paper border border-edge rounded-lg p-6 space-y-4 text-xs sm:text-sm text-ink-secondary leading-relaxed">
         <h2 className="text-base font-bold text-ink-primary">
-          Sequential Authority Architecture
+          Spoken Constraint Relay &amp; Sequential Authority Architecture
         </h2>
         <p>
           Freight delay tools frequently stop at sending an alert or placing an uncoordinated call.
-          DwellGuard establishes a strict sequential authority chain:
+          DwellGuard establishes a strict sequential authority chain powered by the <strong>Spoken Constraint Relay</strong>:
+          the driver&apos;s spoken boundary visibly rewrites the dock request before call two is placed, and the dock&apos;s commitment returns as the same versioned plan on the driver&apos;s phone.
         </p>
 
         <ol className="list-decimal list-inside space-y-2 pl-2 text-ink-primary font-medium">
@@ -29,13 +30,13 @@ export default function AboutPage() {
             <strong>Driver Verification:</strong> CALL-E calls the late driver to verify their actual workable check-in window and asks if they authorize automated scheduling inside that interval.
           </li>
           <li>
-            <strong>Interval Reshaping:</strong> The driver&apos;s verified window is mathematically intersected with dispatcher limits. Impossible times fade on the Plan Rail, and the dock request is rewritten with the real overlap.
+            <strong>Interval Reshaping (Plan Rail):</strong> The driver&apos;s verified window is mathematically intersected with dispatcher limits. Impossible times fade on the Plan Rail, and the dock request is rewritten with the real overlap.
           </li>
           <li>
             <strong>Dock Commitment:</strong> CALL-E calls the receiving dock to confirm an explicit time and designated door within the driver&apos;s approved range, verifying fee boundaries.
           </li>
           <li>
-            <strong>Driver Handoff:</strong> When confirmed, an official appointment pass is generated and delivered directly to the driver&apos;s mobile page for tap acknowledgment.
+            <strong>Causal Appointment Proof &amp; Driver Handoff:</strong> When confirmed, a deterministic, privacy-safe <strong>Causal Appointment Proof</strong> (with SHA-256 hash and matching display ID) is generated. The official appointment pass is delivered directly to the driver&apos;s mobile page for tap acknowledgment.
           </li>
         </ol>
       </div>

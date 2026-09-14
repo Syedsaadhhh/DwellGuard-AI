@@ -10,6 +10,7 @@ import {
   Receipt,
   HandoffToken,
   AuditEvent,
+  CausalProof,
 } from "@/domain/types";
 
 export class SupabaseStore implements Store {
@@ -63,7 +64,6 @@ export class SupabaseStore implements Store {
     incidentId: string,
     authority: Omit<AuthorityVersion, "id" | "incident_id" | "version" | "created_at">
   ): Promise<AuthorityVersion> {
-    // Get current version count
     const { data: currentVersions } = await this.client
       .from("authority_versions")
       .select("version")
@@ -87,6 +87,7 @@ export class SupabaseStore implements Store {
       .update({
         authority_version: newVersionNum,
         status: "authorized",
+        state_revision: (await this.getIncident(incidentId))?.state_revision || 1,
         updated_at: new Date().toISOString(),
       })
       .eq("id", incidentId);
@@ -154,6 +155,16 @@ export class SupabaseStore implements Store {
     return data;
   }
 
+  async getCallIntentByCalleCallId(calleCallId: string): Promise<CallIntent | null> {
+    const { data, error } = await this.client
+      .from("call_intents")
+      .select("*")
+      .eq("calle_call_id", calleCallId)
+      .maybeSingle();
+    if (error) throw error;
+    return data;
+  }
+
   async saveCallSnapshot(snapshot: CallSnapshot): Promise<CallSnapshot> {
     const { data, error } = await this.client.from("call_snapshots").insert(snapshot).select().single();
     if (error) throw error;
@@ -215,6 +226,8 @@ export class SupabaseStore implements Store {
       .update({
         status: "plan_confirmed",
         confirmed_receipt_id: receipt.id,
+        causal_proof_id: receipt.causal_proof_id,
+        causal_proof_short_id: receipt.causal_proof_short_id,
         updated_at: new Date().toISOString(),
       })
       .eq("id", receipt.incident_id);
@@ -233,13 +246,26 @@ export class SupabaseStore implements Store {
       .from("receipts")
       .select("*")
       .eq("incident_id", incidentId)
+      .order("version", { ascending: false })
+      .limit(1)
       .maybeSingle();
     if (error) throw error;
     return data;
   }
 
   async createHandoffToken(token: HandoffToken): Promise<HandoffToken> {
-    const { data, error } = await this.client.from("handoff_tokens").insert(token).select().single();
+    // Only persist fields present in schema (exclude raw_token_display)
+    const recordToPersist = {
+      id: token.id,
+      incident_id: token.incident_id,
+      receipt_id: token.receipt_id,
+      receipt_version: token.receipt_version,
+      token_hash: token.token_hash,
+      expires_at: token.expires_at,
+      created_at: token.created_at,
+    };
+
+    const { data, error } = await this.client.from("handoff_tokens").insert(recordToPersist).select().single();
     if (error) throw error;
 
     await this.client
@@ -247,7 +273,7 @@ export class SupabaseStore implements Store {
       .update({ handoff_token_id: token.id, updated_at: new Date().toISOString() })
       .eq("id", token.incident_id);
 
-    return data;
+    return { ...data, raw_token_display: token.raw_token_display };
   }
 
   async getHandoffTokenByHash(tokenHash: string): Promise<HandoffToken | null> {
@@ -265,6 +291,8 @@ export class SupabaseStore implements Store {
       .from("handoff_tokens")
       .select("*")
       .eq("incident_id", incidentId)
+      .order("receipt_version", { ascending: false })
+      .limit(1)
       .maybeSingle();
     if (error) throw error;
     return data;
@@ -304,12 +332,61 @@ export class SupabaseStore implements Store {
       .update({ status: "driver_received", updated_at: new Date().toISOString() })
       .eq("id", token.incident_id);
 
+    // Update CausalProof chain if present
+    const existingProof = await this.getCausalProof(token.incident_id, token.receipt_version);
+    if (existingProof) {
+      existingProof.canonical_payload.acknowledged_at = ack.acknowledged_at;
+      const ackLink = existingProof.chain.find((l) => l.step === "driver_received");
+      if (ackLink) {
+        ackLink.status = "valid";
+        ackLink.fact = `Acknowledged by driver at ${ack.acknowledged_at}`;
+      }
+      await this.saveCausalProof(existingProof);
+    }
+
     const receipt = await this.getReceipt(token.receipt_id);
     return {
       success: true,
       token: { ...token, acknowledged_at: ack.acknowledged_at },
       receipt: receipt || undefined,
     };
+  }
+
+  async saveCausalProof(proof: CausalProof): Promise<CausalProof> {
+    const { data, error } = await this.client
+      .from("causal_proofs")
+      .upsert({
+        id: proof.id,
+        incident_id: proof.incident_id,
+        receipt_version: proof.receipt_version,
+        proof_hash: proof.proof_hash,
+        short_id: proof.short_id,
+        canonical_payload: proof.canonical_payload,
+        chain: proof.chain,
+        status: proof.status,
+        created_at: proof.created_at,
+      })
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  }
+
+  async getCausalProof(incidentId: string, version?: number): Promise<CausalProof | null> {
+    let query = this.client
+      .from("causal_proofs")
+      .select("*")
+      .eq("incident_id", incidentId);
+
+    if (version !== undefined) {
+      query = query.eq("receipt_version", version);
+    } else {
+      query = query.order("receipt_version", { ascending: false }).limit(1);
+    }
+
+    const { data, error } = await query.maybeSingle();
+    if (error) throw error;
+    return data;
   }
 
   async recordAuditEvent(event: Omit<AuditEvent, "id" | "created_at">): Promise<AuditEvent> {

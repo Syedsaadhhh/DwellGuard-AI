@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { PlanRail } from "@/components/plan-rail";
 import { AppointmentPass } from "@/components/appointment-pass";
-import { Incident, AuthorityVersion, Observation, Receipt, HandoffToken } from "@/domain/types";
+import { Incident, AuthorityVersion, Observation, Receipt, HandoffToken, CausalProof } from "@/domain/types";
 import { formatLocalTime } from "@/domain/workflow/interval";
 
 export default function PublicDemoPage() {
@@ -12,6 +12,7 @@ export default function PublicDemoPage() {
   const [observations, setObservations] = useState<Observation[]>([]);
   const [receipt, setReceipt] = useState<Receipt | null>(null);
   const [handoffToken, setHandoffToken] = useState<HandoffToken | null>(null);
+  const [causalProof, setCausalProof] = useState<CausalProof | null>(null);
 
   const [scenario, setScenario] = useState<"positive" | "fee_refusal">("positive");
   const [isPlaying, setIsPlaying] = useState(false);
@@ -30,6 +31,7 @@ export default function PublicDemoPage() {
       setObservations(data.observations || []);
       setReceipt(data.receipt);
       setHandoffToken(data.handoffToken);
+      setCausalProof(data.causalProof || null);
     } catch (err) {
       console.error(err);
     } finally {
@@ -82,6 +84,7 @@ export default function PublicDemoPage() {
       setObservations(data.observations || []);
       setReceipt(data.receipt);
       setHandoffToken(data.handoffToken);
+      setCausalProof(data.causalProof || null);
     } catch (err) {
       console.error(err);
     }
@@ -243,6 +246,7 @@ export default function PublicDemoPage() {
         driverObservation={driverObs}
         dockObservation={dockObs}
         receipt={receipt}
+        causalProof={causalProof}
       />
 
       {/* Main Surface: Left Context / Right Pass */}
