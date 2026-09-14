@@ -55,7 +55,7 @@ export default function NewIncidentPage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      <div className="flex items-center space-x-2 text-xs text-ink-muted">
+      <div className="flex items-center space-x-2 text-sm text-ink-muted">
         <Link href="/" className="hover:text-ink-primary">&larr; Shipments Desk</Link>
         <span>/</span>
         <span>Register Late Arrival</span>
@@ -64,12 +64,12 @@ export default function NewIncidentPage() {
       <div className="bg-canvas-paper border border-edge rounded-lg p-6 shadow-sm space-y-5">
         <div className="border-b border-edge pb-3">
           <h1 className="text-xl font-bold text-ink-primary">Register Shipment Delay</h1>
-          <p className="text-xs text-ink-secondary mt-1">
+          <p className="text-sm text-ink-secondary mt-1">
             Input verified load and contact details to open a dedicated coordination workspace.
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 text-xs">
+        <form onSubmit={handleSubmit} className="space-y-4 text-sm">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-ink-secondary font-medium mb-1">Load Reference</label>
@@ -143,7 +143,7 @@ export default function NewIncidentPage() {
           </div>
 
           <div className="border-t border-edge pt-4 space-y-4">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-ink-primary">
+            <h2 className="text-sm font-bold uppercase tracking-wider text-ink-primary">
               Facility &amp; Driver Contacts
             </h2>
 
@@ -200,7 +200,7 @@ export default function NewIncidentPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 px-4 rounded bg-action-primary text-white font-semibold text-xs hover:bg-action-hover transition-colors shadow-sm disabled:opacity-50"
+              className="w-full py-2.5 px-4 rounded bg-action-primary text-white font-semibold text-sm hover:bg-action-hover transition-colors shadow-sm disabled:opacity-50"
             >
               {loading ? "Registering..." : "Create Coordination Desk &rarr;"}
             </button>
