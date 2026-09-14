@@ -73,7 +73,7 @@ export function computeIntervalIntersection(
     return {
       hasOverlap: false,
       reason: "EMPTY_INTERSECTION",
-      explanation: `Driver window (${drvStartFmt}–${drvEndFmt}) does not overlap with authorized limits (${authStartFmt}–${authEndFmt}). Dispatcher intervention required.`,
+      explanation: `Driver window (${drvStartFmt} to ${drvEndFmt}) does not overlap with authorized limits (${authStartFmt} to ${authEndFmt}). Dispatcher intervention required.`,
     };
   }
 
@@ -89,7 +89,7 @@ export function computeIntervalIntersection(
     ? "authorized selection inside that range"
     : "did NOT authorize selection inside that range";
 
-  const explanation = `Driver can check in ${drvStartFmt}–${drvEndFmt} and ${permissionText}. Asking ${dockName} for one explicit time within ${ovStartFmt}–${ovEndFmt}.`;
+  const explanation = `Driver can check in ${drvStartFmt} to ${drvEndFmt} and ${permissionText}. Asking ${dockName} for one explicit time within ${ovStartFmt} to ${ovEndFmt}.`;
 
   return {
     hasOverlap: true,
