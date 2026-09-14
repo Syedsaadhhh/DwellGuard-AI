@@ -3,6 +3,70 @@ import { CalleGateway, CreateCallTaskParams, CalleTaskResult } from "@/domain/po
 
 export const OFFICIAL_CALLE_BASE_URL = "https://api.heycall-e.com";
 
+const DRIVER_RESULT_SCHEMA = {
+  type: "object",
+  properties: {
+    verified_interval_start: {
+      type: "string",
+      description: "Driver's earliest workable arrival as an ISO 8601 timestamp with timezone offset.",
+    },
+    verified_interval_end: {
+      type: "string",
+      description: "Driver's latest workable arrival as an ISO 8601 timestamp with timezone offset.",
+    },
+    selection_permitted: {
+      type: "boolean",
+      description: "True only when the driver explicitly permits selection inside the stated interval.",
+    },
+    evidence_text: {
+      type: "array",
+      items: { type: "string" },
+      description: "Short, attributed evidence phrases supporting the structured result.",
+    },
+    summary: { type: "string" },
+  },
+  required: [
+    "verified_interval_start",
+    "verified_interval_end",
+    "selection_permitted",
+    "evidence_text",
+  ],
+};
+
+const DOCK_RESULT_SCHEMA = {
+  type: "object",
+  properties: {
+    confirmed_time: {
+      type: "string",
+      description: "The dock's committed appointment as an ISO 8601 timestamp with timezone offset.",
+    },
+    door: { type: "string", description: "Assigned dock door, when stated." },
+    fee_amount: { type: "number", description: "The exact fee amount; use 0 when no fee applies." },
+    fee_currency: { type: "string", description: "Three-letter currency code such as USD." },
+    conditions: { type: "string", description: "Any operational conditions stated by the dock." },
+    confirmation_basis: {
+      type: "string",
+      description: "What the dock coordinator explicitly agreed to.",
+    },
+    evidence_text: {
+      type: "array",
+      items: { type: "string" },
+      description: "Short, attributed evidence phrases supporting the commitment.",
+    },
+  },
+  required: [
+    "confirmed_time",
+    "fee_amount",
+    "fee_currency",
+    "confirmation_basis",
+    "evidence_text",
+  ],
+};
+
+function resultSchemaFor(params: CreateCallTaskParams) {
+  return params.metadata?.call_type === "driver" ? DRIVER_RESULT_SCHEMA : DOCK_RESULT_SCHEMA;
+}
+
 export class LiveCalleGateway implements CalleGateway {
   private client: CalleClient;
   public readonly baseUrl: string;
@@ -27,6 +91,7 @@ export class LiveCalleGateway implements CalleGateway {
         recipient: {
           phone: params.phone,
         },
+        recipientResultSchema: resultSchemaFor(params),
         metadata: params.metadata,
         webhookUrl: params.webhookUrl,
       },
