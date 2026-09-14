@@ -16,7 +16,7 @@ const newsreader = Newsreader({
 });
 
 export const metadata: Metadata = {
-  title: "DwellGuard — Keep the dock plan moving",
+  title: "DwellGuard: Keep the dock plan moving",
   description:
     "Coordinates late freight dock appointments by turning driver limits into a confirmed, provable plan.",
 };
