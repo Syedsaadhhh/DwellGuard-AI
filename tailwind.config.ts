@@ -21,7 +21,7 @@ const config: Config = {
         ink: {
           primary: "#182B36",
           secondary: "#5B6870",
-          muted: "#88959D",
+          muted: "#77858D",
         },
         edge: {
           DEFAULT: "#D9DED9",
@@ -50,15 +50,11 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: [
-          "-apple-system",
-          "BlinkMacSystemFont",
-          '"Segoe UI"',
-          "Roboto",
-          '"Helvetica Neue"',
-          "Arial",
-          "sans-serif",
-        ],
+        sans: ["var(--font-instrument)", "Arial", "sans-serif"],
+        display: ["var(--font-newsreader)", "Georgia", "serif"],
+      },
+      boxShadow: {
+        paper: "0 18px 50px rgba(24, 43, 54, 0.08)",
       },
       transitionDuration: {
         control: "180ms",
