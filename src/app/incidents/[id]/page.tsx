@@ -139,7 +139,7 @@ export default function IncidentWorkspacePage() {
       {/* Top Breadcrumb & Status */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-edge pb-4 gap-3">
         <div className="flex items-center space-x-3">
-          <Link href="/" className="text-xs text-ink-muted hover:text-ink-primary">
+          <Link href="/" className="text-sm text-ink-muted hover:text-ink-primary">
             &larr; Shipments Desk
           </Link>
           <span className="text-edge">/</span>
@@ -147,7 +147,7 @@ export default function IncidentWorkspacePage() {
             {incident.load_ref} · {incident.carrier}
           </h1>
           <span
-            className={`text-xs px-2.5 py-0.5 rounded font-bold uppercase tracking-wider ${
+            className={`text-sm px-2.5 py-0.5 rounded font-bold uppercase tracking-wider ${
               incident.status === "driver_received" || incident.status === "plan_confirmed"
                 ? "bg-state-confirmed-bg text-state-confirmed-text border border-state-confirmed-border"
                 : incident.status === "dispatcher_needed" || incident.status === "stopped"
@@ -159,7 +159,7 @@ export default function IncidentWorkspacePage() {
           </span>
         </div>
 
-        <div className="flex items-center space-x-3 text-xs">
+        <div className="flex items-center space-x-3 text-sm">
           <span className="text-ink-muted tabular-nums">
             Budget: <strong>{incident.task_budget_remaining} / 2 calls left</strong>
           </span>
@@ -176,7 +176,7 @@ export default function IncidentWorkspacePage() {
       </div>
 
       {/* Ten-Second Cold Viewer Context Card */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-canvas-paper border border-edge rounded-lg p-4 text-xs">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-canvas-paper border border-edge rounded-lg p-4 text-sm">
         <div>
           <span className="text-ink-muted uppercase font-medium block">What went wrong?</span>
           <p className="font-semibold text-ink-primary mt-0.5">
@@ -242,7 +242,7 @@ export default function IncidentWorkspacePage() {
             </h2>
 
             {authority ? (
-              <div className="space-y-3 text-xs">
+              <div className="space-y-3 text-sm">
                 <div className="p-3 bg-canvas-subtle/50 rounded border border-edge">
                   <span className="text-ink-muted uppercase font-medium block">Frozen Authority v{authority.version}</span>
                   <p className="font-semibold text-ink-primary mt-0.5">
@@ -262,15 +262,15 @@ export default function IncidentWorkspacePage() {
                     <button
                       onClick={handleAdvance}
                       disabled={actionLoading}
-                      className="w-full py-2.5 px-4 rounded bg-action-primary text-white font-semibold text-xs hover:bg-action-hover transition-colors shadow-sm disabled:opacity-50"
+                      className="w-full py-2.5 px-4 rounded bg-action-primary text-white font-semibold text-sm hover:bg-action-hover transition-colors shadow-sm disabled:opacity-50"
                     >
                       {actionLoading ? "Calling / Progressing..." : "Advance Next Step &rarr;"}
                     </button>
                   )}
               </div>
             ) : (
-              <form onSubmit={handleAuthorize} className="space-y-3 text-xs">
-                <p className="text-ink-secondary text-[11px]">
+              <form onSubmit={handleAuthorize} className="space-y-3 text-sm">
+                <p className="text-ink-secondary text-[13px]">
                   Set safe boundaries once. DwellGuard will call the driver and dock inside these exact constraints.
                 </p>
 
@@ -316,7 +316,7 @@ export default function IncidentWorkspacePage() {
                     onChange={(e) => setAllowSelection(e.target.checked)}
                     className="rounded border-edge text-action-primary"
                   />
-                  <label htmlFor="allowSelection" className="text-ink-primary font-medium text-[11px]">
+                  <label htmlFor="allowSelection" className="text-ink-primary font-medium text-[13px]">
                     Allow choosing dock slot inside driver&apos;s verified window
                   </label>
                 </div>
@@ -324,7 +324,7 @@ export default function IncidentWorkspacePage() {
                 <button
                   type="submit"
                   disabled={actionLoading}
-                  className="w-full py-2.5 px-4 rounded bg-action-primary text-white font-semibold text-xs hover:bg-action-hover transition-colors shadow-sm disabled:opacity-50 mt-2"
+                  className="w-full py-2.5 px-4 rounded bg-action-primary text-white font-semibold text-sm hover:bg-action-hover transition-colors shadow-sm disabled:opacity-50 mt-2"
                 >
                   {actionLoading ? "Authorizing..." : "Freeze Authority & Launch CALL-E &rarr;"}
                 </button>
@@ -333,7 +333,7 @@ export default function IncidentWorkspacePage() {
           </div>
 
           {/* Contact Details Card */}
-          <div className="bg-canvas-paper border border-edge rounded-lg p-4 text-xs space-y-2.5">
+          <div className="bg-canvas-paper border border-edge rounded-lg p-4 text-sm space-y-2.5">
             <h3 className="font-bold text-ink-primary uppercase tracking-wide border-b border-edge pb-1.5">
               Verified Contacts
             </h3>
@@ -371,7 +371,7 @@ export default function IncidentWorkspacePage() {
                     ? "Manual Dispatcher Intervention Needed"
                     : "Coordination In Progress"}
                 </h3>
-                <p className="text-xs text-ink-secondary max-w-md mt-1">
+                <p className="text-sm text-ink-secondary max-w-md mt-1">
                   {incident.status === "draft"
                     ? "Define acceptable time and fee boundaries on the left to initiate automated driver and dock voice calls."
                     : incident.status === "dispatcher_needed"
@@ -381,7 +381,7 @@ export default function IncidentWorkspacePage() {
               </div>
 
               {incident.status === "draft" && (
-                <div className="text-xs text-ink-muted pt-2 font-mono">
+                <div className="text-sm text-ink-muted pt-2 font-mono">
                   Origin: {incident.origin} &middot; Destination: {incident.destination}
                 </div>
               )}
@@ -391,7 +391,7 @@ export default function IncidentWorkspacePage() {
       </div>
 
       {/* Expandable Evidence Disclosure */}
-      <div className="bg-canvas-paper border border-edge rounded-lg p-4 text-xs">
+      <div className="bg-canvas-paper border border-edge rounded-lg p-4 text-sm">
         <button
           onClick={() => setShowEvidence(!showEvidence)}
           className="flex items-center justify-between w-full font-semibold text-ink-primary hover:text-action-primary"
@@ -418,7 +418,7 @@ export default function IncidentWorkspacePage() {
                         ))}
                       </ul>
                       {obs.raw_transcript_snippet && (
-                        <p className="mt-2 text-[11px] text-ink-muted italic border-l-2 border-action-primary pl-2">
+                        <p className="mt-2 text-[13px] text-ink-muted italic border-l-2 border-action-primary pl-2">
                           &quot;{obs.raw_transcript_snippet}&quot;
                         </p>
                       )}
@@ -430,7 +430,7 @@ export default function IncidentWorkspacePage() {
 
             <div>
               <h4 className="font-bold text-ink-primary uppercase mb-2">State Audit Events</h4>
-              <div className="space-y-1 font-mono text-[11px] text-ink-secondary">
+              <div className="space-y-1 font-mono text-[13px] text-ink-secondary">
                 {auditEvents.map((ev) => (
                   <div key={ev.id} className="py-1 border-b border-edge/40 flex items-center justify-between">
                     <span>[{ev.created_at.slice(11, 19)}] {ev.event_type}</span>
