@@ -23,7 +23,6 @@ const DRIVER_RESULT_SCHEMA = {
       items: { type: "string" },
       description: "Short, attributed evidence phrases supporting the structured result.",
     },
-    summary: { type: "string" },
   },
   required: [
     "verified_interval_start",
