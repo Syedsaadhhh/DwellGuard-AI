@@ -188,7 +188,7 @@ export default function IncidentWorkspacePage() {
           <span className="text-ink-muted uppercase font-medium block">What changed?</span>
           <p className="font-semibold text-ink-primary mt-0.5">
             {driverObs
-              ? `Driver arrival workable window: ${formatLocalTime(driverObs.verified_interval_start!)}–${formatLocalTime(driverObs.verified_interval_end!)}`
+              ? `Driver arrival workable window: ${formatLocalTime(driverObs.verified_interval_start!)} to ${formatLocalTime(driverObs.verified_interval_end!)}`
               : "Awaiting driver verbal verification"}
           </p>
         </div>
@@ -246,7 +246,7 @@ export default function IncidentWorkspacePage() {
                 <div className="p-3 bg-canvas-subtle/50 rounded border border-edge">
                   <span className="text-ink-muted uppercase font-medium block">Frozen Authority v{authority.version}</span>
                   <p className="font-semibold text-ink-primary mt-0.5">
-                    {formatLocalTime(authority.earliest_time, authority.timezone)} – {formatLocalTime(authority.latest_time, authority.timezone)}
+                    {formatLocalTime(authority.earliest_time, authority.timezone)} to {formatLocalTime(authority.latest_time, authority.timezone)}
                   </p>
                   <p className="text-ink-secondary mt-1">
                     Max gate fee: ${authority.fee_ceiling} {authority.currency}
