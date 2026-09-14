@@ -146,14 +146,14 @@ export default function PublicDemoPage() {
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
       {/* Persistent Offline Replay Safety Banner */}
-      <div className="bg-canvas-subtle border-2 border-edge rounded-lg p-3 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
+      <div className="bg-canvas-subtle border-2 border-edge rounded-lg p-3 flex flex-col sm:flex-row items-center justify-between gap-2 text-sm">
         <div className="flex items-center space-x-2.5">
           <span className="w-2.5 h-2.5 rounded-full bg-state-attention-text animate-pulse" />
           <strong className="text-ink-primary uppercase tracking-wide">
             Offline replay &mdash; no call is being placed
           </strong>
         </div>
-        <span className="text-ink-secondary text-[11px]">
+        <span className="text-ink-secondary text-[13px]">
           Runs exact domain state transitions using deterministic fixture transport. Zero telemetry or dialing.
         </span>
       </div>
@@ -164,7 +164,7 @@ export default function PublicDemoPage() {
         <div className="flex items-center space-x-3 w-full md:w-auto">
           <button
             onClick={handlePlayPause}
-            className={`px-5 py-2 rounded font-bold text-xs uppercase tracking-wider transition-colors shadow-sm ${
+            className={`px-5 py-2 rounded font-bold text-sm uppercase tracking-wider transition-colors shadow-sm ${
               isPlaying
                 ? "bg-state-attention-bg text-state-attention-text border border-state-attention-border"
                 : "bg-action-primary text-white hover:bg-action-hover"
@@ -175,21 +175,21 @@ export default function PublicDemoPage() {
 
           <button
             onClick={() => resetFlow(scenario)}
-            className="px-3.5 py-2 rounded text-xs font-semibold bg-canvas-main hover:bg-canvas-subtle text-ink-secondary border border-edge transition-colors"
+            className="px-3.5 py-2 rounded text-sm font-semibold bg-canvas-main hover:bg-canvas-subtle text-ink-secondary border border-edge transition-colors"
           >
             Reset
           </button>
 
           <button
             onClick={() => setSpeed(speed === 1 ? 2 : 1)}
-            className="px-3 py-2 rounded text-xs font-semibold bg-canvas-main hover:bg-canvas-subtle text-ink-secondary border border-edge transition-colors tabular-nums"
+            className="px-3 py-2 rounded text-sm font-semibold bg-canvas-main hover:bg-canvas-subtle text-ink-secondary border border-edge transition-colors tabular-nums"
           >
             Speed: {speed}x
           </button>
         </div>
 
         {/* Step Indicator */}
-        <div className="flex items-center space-x-2 text-xs font-medium text-ink-secondary">
+        <div className="flex items-center space-x-2 text-sm font-medium text-ink-secondary">
           <span>Step {currentStep}/4:</span>
           <span className="font-bold text-ink-primary">
             {currentStep === 0 && "1. At-Risk Load Initialized"}
@@ -201,11 +201,11 @@ export default function PublicDemoPage() {
         </div>
 
         {/* Scenario Switcher */}
-        <div className="flex items-center space-x-2 text-xs">
+        <div className="flex items-center space-x-2 text-sm">
           <span className="text-ink-muted">Scenario:</span>
           <button
             onClick={() => resetFlow("positive")}
-            className={`px-3 py-1.5 rounded font-semibold text-xs transition-colors ${
+            className={`px-3 py-1.5 rounded font-semibold text-sm transition-colors ${
               scenario === "positive"
                 ? "bg-state-confirmed-bg text-state-confirmed-text border border-state-confirmed-border"
                 : "bg-canvas-main text-ink-secondary border border-edge"
@@ -215,7 +215,7 @@ export default function PublicDemoPage() {
           </button>
           <button
             onClick={() => resetFlow("fee_refusal")}
-            className={`px-3 py-1.5 rounded font-semibold text-xs transition-colors ${
+            className={`px-3 py-1.5 rounded font-semibold text-sm transition-colors ${
               scenario === "fee_refusal"
                 ? "bg-state-failure-bg text-state-failure-text border border-state-failure-border"
                 : "bg-canvas-main text-ink-secondary border border-edge"
@@ -228,7 +228,7 @@ export default function PublicDemoPage() {
 
       {/* Replay Notice if Fee Refusal */}
       {scenario === "fee_refusal" && currentStep >= 3 && (
-        <div className="p-4 rounded-lg bg-state-failure-bg border border-state-failure-border text-state-failure-text text-xs space-y-1">
+        <div className="p-4 rounded-lg bg-state-failure-bg border border-state-failure-border text-state-failure-text text-sm space-y-1">
           <span className="font-bold uppercase tracking-wider block">
             Truthful Outcome: Dispatcher Needed (Never False Green)
           </span>
@@ -251,7 +251,7 @@ export default function PublicDemoPage() {
 
       {/* Main Surface: Left Context / Right Pass */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-1 bg-canvas-paper border border-edge rounded-lg p-5 text-xs space-y-4 shadow-sm">
+        <div className="lg:col-span-1 bg-canvas-paper border border-edge rounded-lg p-5 text-sm space-y-4 shadow-sm">
           <h3 className="font-bold text-ink-primary uppercase tracking-wider border-b border-edge pb-2">
             Replay Telemetry
           </h3>
@@ -293,7 +293,7 @@ export default function PublicDemoPage() {
             </div>
           </div>
 
-          <div className="p-3 bg-canvas-subtle/60 rounded border border-edge text-[11px] text-ink-secondary leading-normal">
+          <div className="p-3 bg-canvas-subtle/60 rounded border border-edge text-[13px] text-ink-secondary leading-normal">
             <strong>Judging Note:</strong> This replay uses the exact production state machine and interval math. No separate fake UI animations.
           </div>
         </div>
@@ -317,7 +317,7 @@ export default function PublicDemoPage() {
                   ? "Coordination Stopped (Authority Limit Exceeded)"
                   : "Advancing Sequence..."}
               </h4>
-              <p className="text-xs text-ink-secondary max-w-sm">
+              <p className="text-sm text-ink-secondary max-w-sm">
                 {currentStep === 0
                   ? "Watch the driver's verified arrival range visibly rewrite the dock call request and Plan Rail in place."
                   : incident.status === "dispatcher_needed"
