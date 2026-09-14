@@ -139,7 +139,7 @@ export function PlanRail({
 
   return (
     <div className="bg-canvas-paper border border-edge rounded-lg p-5 shadow-sm space-y-4">
-      <div className="flex items-center justify-between border-b border-edge pb-3">
+      <div className="flex flex-col gap-2 border-b border-edge pb-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center space-x-2">
           <span className="font-semibold text-ink-primary text-sm uppercase tracking-wide">
             Plan Rail
@@ -157,11 +157,11 @@ export function PlanRail({
       {/* Visual Axis Rail */}
       <div className="relative pt-6 pb-8 px-4 bg-canvas-main rounded-md border border-edge/60">
         {/* Baseline Axis Line */}
-        <div className="absolute top-1/2 left-6 right-6 h-1 bg-edge rounded-full transform -translate-y-1/2" />
+        <div className="absolute top-1/2 left-6 right-6 hidden h-1 -translate-y-1/2 rounded-full bg-edge sm:block" />
 
-        <div className="relative flex justify-between items-center text-sm">
+        <div className="relative grid grid-cols-2 gap-4 text-sm sm:grid-cols-5 sm:items-center sm:gap-2">
           {/* 1. Original Appointment */}
-          <div className="flex flex-col items-center text-center">
+          <div className="min-w-0 flex flex-col items-center text-center">
             <div className="w-3.5 h-3.5 rounded-full bg-ink-muted border-2 border-canvas-paper z-10" />
             <span className="mt-2 text-[13px] text-ink-muted uppercase font-medium">Original</span>
             <span className="font-semibold text-ink-secondary tabular-nums line-through decoration-state-failure-text">
@@ -170,7 +170,7 @@ export function PlanRail({
           </div>
 
           {/* 2. Updated ETA */}
-          <div className="flex flex-col items-center text-center">
+          <div className="min-w-0 flex flex-col items-center text-center">
             <div className="w-3.5 h-3.5 rounded-full bg-state-attention-text border-2 border-canvas-paper z-10" />
             <span className="mt-2 text-[13px] text-state-attention-text uppercase font-semibold">New ETA</span>
             <span className="font-semibold text-ink-primary tabular-nums">
@@ -180,7 +180,7 @@ export function PlanRail({
 
           {/* 3. Authority Window */}
           {authority && (
-            <div className="flex flex-col items-center text-center">
+            <div className="min-w-0 flex flex-col items-center text-center">
               <div className="w-3 h-3 rounded-full bg-action-primary border-2 border-canvas-paper z-10" />
               <span className="mt-2 text-[13px] text-ink-secondary uppercase font-medium">Authorized</span>
               <span className="font-medium text-ink-secondary tabular-nums">
@@ -191,7 +191,7 @@ export function PlanRail({
 
           {/* 4. Driver Workable Window */}
           <div
-            className={`flex flex-col items-center text-center transition-opacity duration-state ${
+            className={`min-w-0 flex flex-col items-center text-center transition-opacity duration-state ${
               hasDriverResult ? "opacity-100" : "opacity-40"
             }`}
           >
@@ -208,7 +208,7 @@ export function PlanRail({
 
           {/* 5. Confirmed Appointment */}
           <div
-            className={`flex flex-col items-center text-center transition-opacity duration-state ${
+            className={`min-w-0 flex flex-col items-center text-center transition-opacity duration-state ${
               hasConfirmation ? "opacity-100 scale-105" : "opacity-35"
             }`}
           >
