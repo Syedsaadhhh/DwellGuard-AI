@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { executeSpokenConstraintRelay, RelayConfig } from "./relay";
 import { createFixtureClient } from "./fixtures";
 
-describe("Spoken Constraint Relay — CALL-E Pattern Verification", () => {
+describe("Spoken Constraint Relay: CALL-E Pattern Verification", () => {
   const baseConfig: RelayConfig = {
     incidentId: "inc_contrib_001",
     loadRef: "LD-CONTRIB-77",
