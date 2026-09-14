@@ -3,6 +3,7 @@ import { CalleGateway } from "../ports/calle-gateway";
 import { Clock } from "../ports/clock";
 import { TokenGenerator } from "../ports/tokens";
 import { advanceIncident } from "./advance-incident";
+import { reconcileCallTask } from "./reconcile";
 
 export interface RecoveryWorkerResult {
   checkedCount: number;
@@ -30,7 +31,32 @@ export async function runRecoveryWorker(
     ) {
       checkedCount++;
       try {
-        await advanceIncident(incident.id, store, gateway, clock, tokenGenerator, { workerId });
+        const callTaskId =
+          incident.status === "driver_task_pending"
+            ? incident.driver_calle_call_id
+            : incident.status === "dock_task_pending"
+            ? incident.dock_calle_call_id
+            : undefined;
+
+        if (callTaskId) {
+          await reconcileCallTask(
+            callTaskId,
+            store,
+            gateway,
+            clock,
+            tokenGenerator,
+            { workerId }
+          );
+        } else {
+          await advanceIncident(
+            incident.id,
+            store,
+            gateway,
+            clock,
+            tokenGenerator,
+            { workerId }
+          );
+        }
         recoveredCount++;
       } catch (err: any) {
         errors.push({ incidentId: incident.id, error: err.message || String(err) });
