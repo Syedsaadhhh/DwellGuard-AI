@@ -1,16 +1,16 @@
 <p align="center">
-  <img src="./docs/assets/dwellguard-readme.svg" alt="DwellGuard — The delay happened. The plan kept moving." width="100%" />
+  <img src="./docs/assets/dwellguard-readme.svg" alt="DwellGuard. The delay happened. The plan kept moving." width="100%" />
 </p>
 
 # DwellGuard
 
-> **Freight delays do not need another alert. They need a plan people can actually follow.**
+> **A late truck should not leave four people chasing four different versions of the plan.**
 
-DwellGuard helps dispatchers, drivers, and receiving docks respond as one connected chain. When an arrival changes, the driver's real window shapes the next move—and the agreed plan comes back clearly to the people who need it.
+DwellGuard turns a changed arrival into a driver-approved, dock-confirmed appointment. It keeps the limits, the calls, and the handoff connected so everyone knows what happens next.
 
-## One update should move the whole plan
+## One change. One plan.
 
-Most delay tools stop after reporting what went wrong. DwellGuard carries the change forward.
+Most delay tools tell you something went wrong. DwellGuard carries the work forward.
 
 ```mermaid
 sequenceDiagram
@@ -19,34 +19,33 @@ sequenceDiagram
     participant Driver
     participant Dock
 
-    Dispatcher->>DwellGuard: Set the safe limits once
-    DwellGuard->>Driver: Confirm the real arrival window
-    Driver-->>DwellGuard: Share what is workable
-    DwellGuard->>Dock: Coordinate the revised time
-    Dock-->>DwellGuard: Confirm the plan
-    DwellGuard-->>Driver: Return one clear next step
+    Dispatcher->>DwellGuard: Set the safe limits
+    DwellGuard->>Driver: Confirm what is workable
+    Driver-->>DwellGuard: Share the real arrival window
+    DwellGuard->>Dock: Request a time inside that window
+    Dock-->>DwellGuard: Confirm the appointment
+    DwellGuard-->>Driver: Return the final plan
 ```
 
-## The difference is in the handoff
+## What makes it different
 
-**The first conversation does not end as a note. It changes what happens next.**
+The first call does not become a forgotten note. It changes the second call.
 
-DwellGuard keeps each step connected, stays inside the dispatcher's limits, and makes it clear when a person still needs to decide.
+DwellGuard stays inside the dispatcher's authority, checks the dock's answer against the driver's real window, and shows why the final appointment is valid. If the evidence does not line up, it stops and asks for a person.
 
-| Understand | Coordinate | Close the loop |
+| Listen | Coordinate | Prove |
 | --- | --- | --- |
-| Capture what has actually changed. | Turn the workable window into the next move. | Bring the agreed plan back to the driver. |
+| Capture the driver's real limits. | Ask the dock for a workable commitment. | Return one receipt with a clear evidence chain. |
 
-## What that means
+## The result
 
-- Fewer repeated calls and conflicting updates.
-- A clear boundary between what is agreed and what still needs attention.
-- One plan that dispatch, driver, and dock can understand.
-
----
+- Fewer repeat calls.
+- No quiet guesswork about time or fees.
+- One plan for dispatch, driver, and dock.
+- A clean handoff when a person needs to step in.
 
 <p align="center">
-  <strong>DwellGuard — Keep the dock plan moving.</strong>
+  <strong>DwellGuard. Keep the dock plan moving.</strong>
 </p>
 
 <p align="center">
