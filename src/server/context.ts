@@ -15,6 +15,11 @@ export function getStore(): Store {
   if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
     return new SupabaseStore();
   }
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "BLOCKED_LIVE: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required in production."
+    );
+  }
   if (!globalMemoryStore) {
     globalMemoryStore = new MemoryStore(true);
   }
