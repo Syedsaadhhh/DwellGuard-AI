@@ -1,7 +1,7 @@
 # DwellGuard Release Checklist & Submission Matrix
 
 **Date:** 14 September 2026  
-**Product:** DwellGuard — Keep the dock plan moving.  
+**Product:** DwellGuard: Keep the dock plan moving.  
 **Repository:** https://github.com/Syedsaadhhh/DwellGuard-AI  
 **Hackathon:** CALL-E: Your Code Is Calling  
 
