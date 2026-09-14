@@ -4,22 +4,33 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+function toLocalDateTimeInput(date: Date) {
+  const local = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
+  return local.toISOString().slice(0, 16);
+}
+
 export default function NewIncidentPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-  const [formData, setFormData] = useState({
-    load_ref: "DG-3012",
-    carrier: "Summit Logistics",
-    origin: "Indianapolis, IN",
-    destination: "Columbus, OH",
-    dock_name: "Buckeye Regional Logistics",
-    dock_contact_name: "Receiving Coordinator",
-    dock_phone: "+16145550199",
-    driver_contact_name: "Samir Khan",
-    driver_phone: "+13175550188",
-    original_appointment: "2026-09-14T11:00",
-    updated_eta: "2026-09-14T12:15",
+  const [formData, setFormData] = useState(() => {
+    const now = new Date();
+    const originalAppointment = new Date(now.getTime() - 20 * 60_000);
+    const revisedEta = new Date(now.getTime() + 40 * 60_000);
+
+    return {
+      load_ref: `DG-${String(Date.now()).slice(-4)}`,
+      carrier: "Summit Logistics",
+      origin: "Indianapolis, IN",
+      destination: "Columbus, OH",
+      dock_name: "Buckeye Regional Logistics",
+      dock_contact_name: "Receiving Coordinator",
+      dock_phone: "",
+      driver_contact_name: "Samir Khan",
+      driver_phone: "",
+      original_appointment: toLocalDateTimeInput(originalAppointment),
+      updated_eta: toLocalDateTimeInput(revisedEta),
+    };
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -29,8 +40,8 @@ export default function NewIncidentPage() {
     try {
       const payload = {
         ...formData,
-        original_appointment: `${formData.original_appointment}:00-04:00`,
-        updated_eta: `${formData.updated_eta}:00-04:00`,
+        original_appointment: new Date(formData.original_appointment).toISOString(),
+        updated_eta: new Date(formData.updated_eta).toISOString(),
       };
 
       const res = await fetch("/api/incidents", {
