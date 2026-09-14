@@ -43,7 +43,7 @@
   - `/incidents/[id]`: Coordination workspace with Plan Rail, authority freeze, and action triggers.
   - `/receipts/[id]`: Print-friendly appointment pass with JSON export.
   - `/handoff/[token]`: Mobile driver page with one-tap acknowledgment.
-  - `/demo`: Isolated public replay with persistent "Offline replay — no call is being placed" label and 45-second player.
+  - `/demo`: Isolated public replay with persistent "Offline replay: no call is being placed" label and 45-second player.
   - `/about`: System limits, sequential authority explanation, and real vs. simulated details.
 
 ---
