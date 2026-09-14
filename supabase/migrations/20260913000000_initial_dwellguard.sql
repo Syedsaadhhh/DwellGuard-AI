@@ -234,6 +234,11 @@ declare
   next_v integer;
   res authority_versions%rowtype;
 begin
+  perform 1 from incidents where id = p_incident_id for update;
+  if not found then
+    raise exception 'Incident % does not exist', p_incident_id;
+  end if;
+
   select coalesce(max(version), 0) + 1 into next_v
   from authority_versions
   where incident_id = p_incident_id;
@@ -255,3 +260,57 @@ begin
   return query select res;
 end;
 $$ language plpgsql;
+
+
+-- Server-only data boundary. The app uses the service-role key exclusively on the server.
+alter table incidents enable row level security;
+alter table authority_versions enable row level security;
+alter table call_intents enable row level security;
+alter table call_snapshots enable row level security;
+alter table observations enable row level security;
+alter table workflow_jobs enable row level security;
+alter table receipts enable row level security;
+alter table handoff_tokens enable row level security;
+alter table handoff_acknowledgments enable row level security;
+alter table causal_proofs enable row level security;
+alter table audit_events enable row level security;
+
+revoke all on table
+  incidents,
+  authority_versions,
+  call_intents,
+  call_snapshots,
+  observations,
+  workflow_jobs,
+  receipts,
+  handoff_tokens,
+  handoff_acknowledgments,
+  causal_proofs,
+  audit_events
+from anon, authenticated;
+
+grant all on table
+  incidents,
+  authority_versions,
+  call_intents,
+  call_snapshots,
+  observations,
+  workflow_jobs,
+  receipts,
+  handoff_tokens,
+  handoff_acknowledgments,
+  causal_proofs,
+  audit_events
+to service_role;
+
+revoke execute on function reserve_call_budget(text, integer) from public, anon, authenticated;
+revoke execute on function claim_workflow_job(text, text, integer) from public, anon, authenticated;
+revoke execute on function freeze_authority_version(
+  text, timestamptz, timestamptz, text, numeric, text, integer, boolean, timestamptz
+) from public, anon, authenticated;
+
+grant execute on function reserve_call_budget(text, integer) to service_role;
+grant execute on function claim_workflow_job(text, text, integer) to service_role;
+grant execute on function freeze_authority_version(
+  text, timestamptz, timestamptz, text, numeric, text, integer, boolean, timestamptz
+) to service_role;
