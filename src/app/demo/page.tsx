@@ -304,6 +304,7 @@ export default function PublicDemoPage() {
               receipt={receipt}
               incident={incident}
               handoffToken={handoffToken}
+              demoMode
             />
           ) : (
             <div className="bg-canvas-paper border border-edge rounded-lg p-6 flex flex-col items-center justify-center text-center h-full min-h-[260px] space-y-3">
