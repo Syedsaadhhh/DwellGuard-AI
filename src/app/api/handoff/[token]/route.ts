@@ -133,8 +133,13 @@ export async function POST(req: Request, { params }: { params: { token: string }
     const clientIpHash = crypto.createHash("sha256").update(ip).digest("hex");
     const userAgent = req.headers.get("user-agent") || "Browser";
 
+    const acknowledgedAt =
+      params.token === DEMO_TOKEN
+        ? getDemoContext().clock.isoNow()
+        : new Date().toISOString();
+
     const result = await store.acknowledgeHandoff(tokenRecord.token_hash, {
-      acknowledged_at: new Date().toISOString(),
+      acknowledged_at: acknowledgedAt,
       client_ip_hash: clientIpHash,
       user_agent: userAgent,
     });
