@@ -75,7 +75,10 @@ export async function GET(_req: Request, { params }: { params: { token: string }
   try {
     const { store, tokenRecord } = await getHandoffContext(params.token);
 
-    if (!tokenRecord || new Date(tokenRecord.expires_at) < new Date()) {
+    if (
+      !tokenRecord ||
+      (params.token !== DEMO_TOKEN && new Date(tokenRecord.expires_at) < new Date())
+    ) {
       return NextResponse.json({ error: "Invalid or expired handoff link." }, { status: 404 });
     }
 
@@ -119,7 +122,10 @@ export async function POST(req: Request, { params }: { params: { token: string }
   try {
     const { store, tokenRecord } = await getHandoffContext(params.token);
 
-    if (!tokenRecord || new Date(tokenRecord.expires_at) < new Date()) {
+    if (
+      !tokenRecord ||
+      (params.token !== DEMO_TOKEN && new Date(tokenRecord.expires_at) < new Date())
+    ) {
       return NextResponse.json({ error: "Invalid or expired handoff token." }, { status: 404 });
     }
 
