@@ -28,7 +28,7 @@ export async function reconcileCallTask(
     return null;
   }
 
-  // Authoritative retrieval ONLY — zero creates
+  // Authoritative retrieval ONLY: zero creates
   const taskResult = await gateway.getCallTask(calleCallId);
 
   intent.status = taskResult.status === "completed" ? "completed" : "dispatched";
