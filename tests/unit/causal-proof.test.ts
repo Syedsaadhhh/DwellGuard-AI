@@ -241,6 +241,32 @@ describe("Causal Appointment Proof Engine", () => {
     expect(dockLink?.fact).toContain("exceeding ceiling");
   });
 
+  it("keeps the appointment proof ID stable after driver acknowledgment", () => {
+    const pending = generateCausalProof(
+      mockIncident,
+      mockAuthority,
+      mockDriverObs,
+      mockDockObs,
+      mockOverlap,
+      mockReceipt,
+      null
+    );
+    const acknowledged = generateCausalProof(
+      mockIncident,
+      mockAuthority,
+      mockDriverObs,
+      mockDockObs,
+      mockOverlap,
+      mockReceipt,
+      "2026-09-14T10:20:00Z"
+    );
+
+    expect(acknowledged.proof_hash).toBe(pending.proof_hash);
+    expect(acknowledged.short_id).toBe(pending.short_id);
+    expect(pending.chain[5].status).toBe("pending");
+    expect(acknowledged.chain[5].status).toBe("valid");
+  });
+
   it("persists and retrieves proof in store preserving short display ID", async () => {
     const store = new MemoryStore(false);
     const proof = generateCausalProof(
