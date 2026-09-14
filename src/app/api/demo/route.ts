@@ -90,11 +90,18 @@ export async function POST(req: Request) {
       });
 
       const updated = await demo.store.getIncident(incidentId);
+      const authority = await demo.store.getLatestAuthority(incidentId);
+      const observations = await demo.store.getObservations(incidentId);
+      const receipt = await demo.store.getReceiptByIncident(incidentId);
+      const handoffToken = await demo.store.getHandoffTokenByIncident(incidentId);
       const causalProof = await demo.store.getCausalProof(incidentId);
       return NextResponse.json({
         acknowledged: ackRes.success,
         incident: updated,
-        receipt: ackRes.receipt,
+        authority,
+        observations,
+        receipt,
+        handoffToken,
         causalProof,
       });
     }
