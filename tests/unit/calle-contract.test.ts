@@ -54,7 +54,7 @@ describe("CALL-E SDK Wire Contract & Serialization", () => {
       task: "Coordinate arrival window with driver Joe",
       phone: "+15550192834",
       recipientName: "Joe",
-      metadata: { load_ref: "DG-2048", incident_id: "inc_123" },
+      metadata: { load_ref: "DG-2048", incident_id: "inc_123", call_type: "driver" },
       idempotencyKey,
     });
 
@@ -72,8 +72,16 @@ describe("CALL-E SDK Wire Contract & Serialization", () => {
     expect(capturedBody).toMatchObject({
       task: "Coordinate arrival window with driver Joe",
       recipients: [{ phones: ["+15550192834"] }],
-      metadata: { load_ref: "DG-2048", incident_id: "inc_123" },
+      metadata: { load_ref: "DG-2048", incident_id: "inc_123", call_type: "driver" },
     });
+    expect(capturedBody.recipient_result_schema.required).toEqual(
+      expect.arrayContaining([
+        "verified_interval_start",
+        "verified_interval_end",
+        "selection_permitted",
+        "evidence_text",
+      ])
+    );
 
     // 4. Verify CallTask ID mapping
     expect(result.calleCallId).toBe("call_task_mock_99182");
