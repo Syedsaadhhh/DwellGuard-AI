@@ -15,7 +15,10 @@ export function getStore(): Store {
   if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
     return new SupabaseStore();
   }
-  if (process.env.NODE_ENV === "production") {
+  if (
+    process.env.NODE_ENV === "production" &&
+    process.env.NEXT_PHASE !== "phase-production-build"
+  ) {
     throw new Error(
       "BLOCKED_LIVE: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required in production."
     );
