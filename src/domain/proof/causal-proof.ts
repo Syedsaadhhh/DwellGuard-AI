@@ -93,7 +93,7 @@ export function buildProofChain(
   const link1: CausalProofChainLink = {
     step: "authority",
     title: "1. Frozen Authority",
-    fact: `Allowed check-in ${authStartFmt}–${authEndFmt} · Fee ceiling $${authority.fee_ceiling} ${authority.currency}`,
+    fact: `Allowed check-in ${authStartFmt} to ${authEndFmt} · Fee ceiling $${authority.fee_ceiling} ${authority.currency}`,
     source: `Dispatcher Authority v${authority.version}`,
     status: "valid",
   };
@@ -103,7 +103,7 @@ export function buildProofChain(
     step: "driver",
     title: "2. Driver Window & Permission",
     fact: isDriverValid
-      ? `Workable ${drvStartFmt}–${drvEndFmt} · Slot selection authorized`
+      ? `Workable ${drvStartFmt} to ${drvEndFmt} · Slot selection authorized`
       : "Driver arrival window missing or slot selection refused",
     source: `Driver Voice Task (${driverObs.calle_call_id})`,
     status: isDriverValid ? "valid" : "broken",
@@ -113,7 +113,7 @@ export function buildProofChain(
   const link3: CausalProofChainLink = {
     step: "overlap",
     title: "3. Derived Overlap",
-    fact: isOverlapValid ? `Strict mathematical overlap: ${ovStartFmt}–${ovEndFmt}` : "Empty temporal intersection",
+    fact: isOverlapValid ? `Strict mathematical overlap: ${ovStartFmt} to ${ovEndFmt}` : "Empty temporal intersection",
     source: "DwellGuard Constraint Engine",
     status: isOverlapValid ? "valid" : "broken",
   };
