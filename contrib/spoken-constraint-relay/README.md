@@ -1,4 +1,4 @@
-# Spoken Constraint Relay — CALL-E Pattern
+# Spoken Constraint Relay: CALL-E Pattern
 
 A reusable, production-tested pattern for `@call-e/calle` that coordinates dependent sequential phone calls:
 **A recipient's spoken boundaries in Call 1 visibly constrain and rewrite the operational request in Call 2.**
@@ -21,9 +21,9 @@ sequenceDiagram
     Driver-->>CALL_E: "I can check in 11:30 to 12:30. Go ahead."
     CALL_E-->>DwellGuard: Structured Evidence (verified_interval + permission)
 
-    Note over DwellGuard: Mathematically intersect limits<br/>Rewrite Dock prompt to 11:30–12:30
+    Note over DwellGuard: Mathematically intersect limits<br/>Rewrite Dock prompt to 11:30 to 12:30
 
-    DwellGuard->>CALL_E: Call 2: Request explicit slot in 11:30–12:30
+    DwellGuard->>CALL_E: Call 2: Request explicit slot in 11:30 to 12:30
     CALL_E->>Dock: Voice Negotiation
     Dock-->>CALL_E: "Bring it to Door 4 at 11:45, no fee."
     CALL_E-->>DwellGuard: Explicit Slot Commitment
