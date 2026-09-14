@@ -14,15 +14,16 @@
 | **Typecheck** | `PASS` | `npm run typecheck` (`tsc --noEmit`) passes with 0 errors. |
 | **Unit Tests** | `PASS` | 10 test suites covering domain, proof chain, reconciliation, security, and wire contracts. |
 | **Production Build** | `PASS` | `npm run build` succeeds cleanly across all routes. |
-| **CI Workflow Proof** | `PASS` | `.github/workflows/ci.yml` configured for typecheck, tests, and build. |
+| **CI Workflow Proof** | `PASS` | GitHub Actions verifies typecheck, tests, and production build on every push. |
 | **Public Replay Safety** | `PASS` | `/demo` executes offline fixture transport; cannot dial or consume credits. |
 | **Private Routes Protected** | `PASS` | Operator session auth required on private incident routes; returns 401/503 without session/credentials. |
 | **Fail-Closed Live Gateway** | `PASS` | Unauthenticated live calls return 503 `BLOCKED_LIVE`; no mock progress in live paths. |
 | **Causal Appointment Proof** | `PASS` | Deterministic SHA-256 hash and display ID (`DG-PROOF-xxxxxxxx`) match across desktop and driver phone. |
 | **Source Repository** | `READY` | https://github.com/Syedsaadhhh/DwellGuard-AI (branch: `main`) |
 | **Upstream Contribution** | `READY` | Packaged in `contrib/spoken-constraint-relay/` ready for PR to https://github.com/CALLE-AI/awesome-phone-call-agents |
-| **Live Telephony Proof** | `BLOCKED_LIVE` | `CALLE_API_KEY` absent locally; fails closed by design. Ready for production credentials. |
-| **Deployed Application** | `READY_FOR_DEPLOY` | Ready for deployment to Vercel/Supabase. |
+| **Supabase Database** | `PASS` | Separate DwellGuard project created in Singapore. Eleven tables use RLS and server-only grants. |
+| **Live Telephony Proof** | `SETUP_REQUIRED` | CALL-E key is available but still needs to be added to the production host before the live test. |
+| **Deployed Application** | `LIVE_SETUP_REQUIRED` | https://dwellguard-ai.vercel.app is serving. Private environment values and one final redeploy remain. |
 | **Public Video** | `PENDING_RECORDING` | Ready to record using three-minute script in `DWELLGUARD_ANTIGRAVITY_MASTER.md`. |
 | **CALL-E Account Email** | `MANUAL_ENTRY` | Enter the registered CALL-E account email in the Devpost submission form. |
 
@@ -31,12 +32,12 @@
 ## 2. Devpost Submission Copy
 
 ### One-Sentence Pitch
-DwellGuard coordinates a late truck's revised dock appointment by turning the driver's real arrival limits into the next CALL-E request, validating the dock's confirmation, and returning the agreed plan to the driver.
+DwellGuard calls the driver, works out what time is actually possible, asks the dock for a slot inside that window, and sends the confirmed plan back.
 
 ### Testing Instructions
 1. Open the public replay at `/demo`.
 2. Select the **Positive Replay** scenario.
-3. Click **Play the 45-second flow** (or use step controls).
+3. Click **Play the 45-second flow**.
 4. Watch the driver's spoken arrival limits reshape the Plan Rail and rewrite the receiving dock prompt before call 2.
 5. In Step 4, inspect the **Causal Appointment Proof** chain (`Why this plan is valid`) and note the proof ID (e.g. `DG-PROOF-7A91C2E4`).
 6. Click the mobile handoff link or tap **I've received this plan** on the simulated driver handoff view.
