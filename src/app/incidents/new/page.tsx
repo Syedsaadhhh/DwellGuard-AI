@@ -213,7 +213,7 @@ export default function NewIncidentPage() {
               disabled={loading}
               className="w-full py-2.5 px-4 rounded bg-action-primary text-white font-semibold text-sm hover:bg-action-hover transition-colors shadow-sm disabled:opacity-50"
             >
-              {loading ? "Registering..." : "Create Coordination Desk &rarr;"}
+              {loading ? "Registering..." : "Create Coordination Desk →"}
             </button>
           </div>
         </form>
