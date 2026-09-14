@@ -1,8 +1,8 @@
-# DWELLGUARD — TWO-RUN FINAL STRETCH MASTER
+# DWELLGUARD: TWO-RUN FINAL STRETCH MASTER
 
 **13 September 2026 · Two execution runs · One implementation authority**
 
-**Product:** DwellGuard — Keep the dock plan moving.
+**Product:** DwellGuard: Keep the dock plan moving.
 
 **Repository:** https://github.com/Syedsaadhhh/DwellGuard-AI
 
@@ -109,9 +109,9 @@ Freeze this as an immutable authority version. Any meaningful change creates a n
 
 ### Three truthful outcomes
 
-1. **Plan confirmed** — recipient-attributed evidence supports the exact appointment and frozen authority.
-2. **Driver received** — the current receipt version was acknowledged through its scoped handoff token.
-3. **Dispatcher needed** — the result is incomplete, conditional, conflicting, outside authority, stopped or uncertain.
+1. **Plan confirmed**: recipient-attributed evidence supports the exact appointment and frozen authority.
+2. **Driver received**: the current receipt version was acknowledged through its scoped handoff token.
+3. **Dispatcher needed**: the result is incomplete, conditional, conflicting, outside authority, stopped or uncertain.
 
 Never merge these into one green “success.”
 
@@ -144,7 +144,7 @@ The same Plan Rail changes in place:
 
 Example:
 
-> Driver can check in 11:35–11:50 and authorized selection inside that range. Asking Northline Receiving for one explicit time within 11:35–11:50.
+> Driver can check in 11:35 to 11:50 and authorized selection inside that range. Asking Northline Receiving for one explicit time within 11:35 to 11:50.
 
 This transformation must be caused by persisted timestamps and verified recipient evidence. No scenario-name branch, hardcoded answer or client-only timer may choose it.
 
@@ -210,25 +210,25 @@ No cyberpunk, neon, glowing agent nodes, moving maps, fake waveform, decorative 
 | Confirmed | #24654B on #E8F1EA |
 | Attention | #8A561B on #FBF0DB |
 | Hard failure | #A63F36 on #F9E9E6 |
-| Motion | 140–220 ms controls; maximum 300 ms state transition; reduced-motion safe |
+| Motion | 140 to 220 ms controls; maximum 300 ms state transition; reduced-motion safe |
 
 ### Typography and density
 
 - Use **Instrument Sans** for navigation, body, buttons and operational labels, loaded through `next/font` or self-hosted with a full system fallback. Use **Newsreader** only for the main hook and confirmed appointment time/pass so the interface feels editorial rather than template-generated. If either font fails the production build, self-host it or keep the fallback; never load a blocking runtime font stylesheet.
-- Body and form text: 16 px minimum with 1.5–1.6 line height. Buttons: 15–16 px semibold. Metadata: 13–14 px; never below 12 px. Desktop page title: 48–60 px. Mobile title: 36–42 px. Confirmed appointment time: 56–72 px with tabular numerals.
+- Body and form text: 16 px minimum with 1.5 to 1.6 line height. Buttons: 15 to 16 px semibold. Metadata: 13 to 14 px; never below 12 px. Desktop page title: 48 to 60 px. Mobile title: 36 to 42 px. Confirmed appointment time: 56 to 72 px with tabular numerals.
 - Avoid all-caps paragraphs, excessive letter spacing, tiny gray copy and monospace outside IDs/timestamps. Preserve contrast at WCAG AA.
 
 ### Responsive layout contract
 
-- At 1280–1440 px: restrained 208–224 px navigation rail, fluid main column and 320–360 px authority/pass column. The Plan Rail owns the main visual width.
-- At 768–1023 px: collapse the right column below the Plan Rail without shrinking text or controls.
-- At 390–767 px: use a simple sticky top bar, 16 px page gutters, one column, full-width actions and the appointment pass before secondary evidence.
+- At 1280 to 1440 px: restrained 208 to 224 px navigation rail, fluid main column and 320 to 360 px authority/pass column. The Plan Rail owns the main visual width.
+- At 768 to 1023 px: collapse the right column below the Plan Rail without shrinking text or controls.
+- At 390 to 767 px: use a simple sticky top bar, 16 px page gutters, one column, full-width actions and the appointment pass before secondary evidence.
 - Use `minmax(0, 1fr)`, `min-width: 0`, wrapping text and responsive padding. No fixed content width that forces the page to zoom or resize.
 - No horizontal page overflow, visible browser scrollbars caused by layout mistakes, draggable range sliders, nested scrolling panels or clipped menus. The Plan Rail is a static semantic visualization, not a slider; on mobile it must fit the viewport with no more than four readable ticks.
 - Never hide overflow to conceal a broken layout. Fix the offending width. Preserve ordinary vertical page scrolling and keyboard focus visibility.
 - Do not place every fact in a floating card. Use one primary working surface, one supporting surface and dividers/spacing for hierarchy.
 - Controls must use real buttons/links with 44 px minimum touch targets, clear labels, disabled/loading states and visible focus.
-- Motion is limited to the state transition already specified: 160–240 ms, reduced-motion safe, no entrance parade, parallax, bouncing, auto-scrolling or layout shift.
+- Motion is limited to the state transition already specified: 160 to 240 ms, reduced-motion safe, no entrance parade, parallax, bouncing, auto-scrolling or layout shift.
 
 ### Ten-second visual composition
 
@@ -257,7 +257,7 @@ Before release, capture and inspect screenshots at 1440×900, 1280×800, 768×10
 | /incidents/[id] | Main workspace: shipment context, Plan Rail, current action, frozen authority and evidence. |
 | /receipts/[id] | Print-friendly appointment pass with expandable evidence and JSON download. |
 | /handoff/[token] | Mobile driver page for this one receipt version and one acknowledgment action. |
-| /demo | Public isolated replay. Persistent “Offline replay — no call is being placed” label. |
+| /demo | Public isolated replay. Persistent “Offline replay: no call is being placed” label. |
 | /about | Short real-versus-simulated explanation and limits. |
 
 Navigation: **Shipments · Demo · How it works**. Do not create empty Analytics, Billing, Teams or Settings pages.
@@ -430,14 +430,14 @@ Public /demo uses separate fixture state and can never reach live routes.
 
 The old three-run separation spent a full handoff between engine and product finish. With the deadline close, build one end-to-end vertical slice first, then prove and ship it. The reduction removes repeated planning and reports, not safety or evidence gates.
 
-- **Run 1 — Working vertical product:** approximately 60% of remaining build time.
-- **Run 2 — Proof, wow and release:** approximately 40%.
+- **Run 1: Working vertical product:** approximately 60% of remaining build time.
+- **Run 2: Proof, wow and release:** approximately 40%.
 
 Each run may make one midpoint checkpoint commit and one final commit. Do not stop for a new prompt at the midpoint. Keep reports short.
 
 ---
 
-## RUN 1 — Build the complete vertical product
+## RUN 1: Build the complete vertical product
 
 ### Mission
 
@@ -481,13 +481,13 @@ Stop only after the working vertical slice and short report are committed. Do no
 
 ---
 
-## RUN 2 — Prove it, create the wow, and ship
+## RUN 2: Prove it, create the wow, and ship
 
 ### Mission
 
 Turn the vertical slice into a judge-ready product with real evidence, a memorable two-device relay, measured proof, deployment and every required submission artifact.
 
-### Locked specialty — Spoken Constraint Relay
+### Locked specialty: Spoken Constraint Relay
 
 DwellGuard's memorable mechanism is not “AI makes calls.” It is this visible causal loop:
 
@@ -496,7 +496,7 @@ DwellGuard's memorable mechanism is not “AI makes calls.” It is this visible
 Make this undeniable within the first 25 seconds of the demo: show the late load, capture the driver's narrower interval and permission, collapse the Plan Rail to the valid overlap, and visibly rewrite the dock-request preview before call two. After confirmation, show the same receipt version on desktop and phone, then the desktop change to **Driver received** after the tap. Use the product label **Spoken Constraint Relay** once in About/architecture/demo narration; keep **Plan Rail** as the component name. Do not add another feature or dashboard section for this.
 
 
-### Irreplaceable product artifact — Causal Appointment Proof
+### Irreplaceable product artifact: Causal Appointment Proof
 
 Add one compact, real artifact that competitors cannot reproduce with a nicer dashboard alone. Every confirmed plan must carry a **Causal Appointment Proof**: a deterministic, privacy-safe proof of why this exact appointment was allowed.
 
@@ -528,7 +528,7 @@ Run 1's typecheck, unit tests and production build are valid, but they only prov
 5. **Fix production handoff persistence.** The domain always creates `raw_token_display`, but the Supabase `handoff_tokens` table has no such column; inserting the full object can fail. Persist only the token hash and metadata, return the raw token once for delivery, and never expose hashes or raw tokens through private incident JSON. Enforce authority expiry before dispatch and make latest-version receipt/token queries deterministic.
 6. **Add repository proof.** `98de93e` has no reported GitHub status checks. Add one minimal CI workflow for typecheck, tests and production build, then require a green run before release.
 
-Do not spend live-call credits until items 1–5 pass. These repairs are part of Run 2, not a new run.
+Do not spend live-call credits until items 1 to 5 pass. These repairs are part of Run 2, not a new run.
 
 ### Build order
 
@@ -622,15 +622,15 @@ A real database concurrency test is required for atomic reservation/finalization
 
 | Time | Screen/action | What the judge understands |
 | --- | --- | --- |
-| 0:00–0:12 | At-risk DG-2048, original 10:30 appointment and new ETA | One ordinary, expensive coordination problem. |
-| 0:12–0:28 | Dispatcher reviews contacts, time/fee limits and two-call budget, then authorizes once | The system has bounded authority, not unlimited autonomy. |
-| 0:28–0:58 | Short real driver-call excerpt and live state | CALL-E reaches the person holding the missing fact. |
-| 0:58–1:18 | Plan Rail reshapes to the verified 11:35–11:50 interval; dock request preview updates | The first conversation changes the next action. Hold this shot. |
-| 1:18–1:48 | Short dock-call excerpt and explicit read-back | The second call seeks the exact operational agreement. |
-| 1:48–2:10 | 11:45 appointment pass appears; driver phone updates and is acknowledged | The result travels back to the person who must act on it. This is the wow moment. |
-| 2:10–2:30 | Offline fee-refusal replay | DwellGuard knows when not to claim success. |
-| 2:30–2:48 | Measured timestamps and concise architecture | Claims are inspectable and sponsor-dependent. |
-| 2:48–3:00 | Receipt, deployed replay and upstream contribution | The delay happened. The plan kept moving. |
+| 0:00 to 0:12 | At-risk DG-2048, original 10:30 appointment and new ETA | One ordinary, expensive coordination problem. |
+| 0:12 to 0:28 | Dispatcher reviews contacts, time/fee limits and two-call budget, then authorizes once | The system has bounded authority, not unlimited autonomy. |
+| 0:28 to 0:58 | Short real driver-call excerpt and live state | CALL-E reaches the person holding the missing fact. |
+| 0:58 to 1:18 | Plan Rail reshapes to the verified 11:35 to 11:50 interval; dock request preview updates | The first conversation changes the next action. Hold this shot. |
+| 1:18 to 1:48 | Short dock-call excerpt and explicit read-back | The second call seeks the exact operational agreement. |
+| 1:48 to 2:10 | 11:45 appointment pass appears; driver phone updates and is acknowledged | The result travels back to the person who must act on it. This is the wow moment. |
+| 2:10 to 2:30 | Offline fee-refusal replay | DwellGuard knows when not to claim success. |
+| 2:30 to 2:48 | Measured timestamps and concise architecture | Claims are inspectable and sponsor-dependent. |
+| 2:48 to 3:00 | Receipt, deployed replay and upstream contribution | The delay happened. The plan kept moving. |
 
 Edit ringing and dead air honestly. Label live footage **Controlled test recipients** and fixtures **Offline replay**. Do not present reenacted or generated evidence as live.
 
