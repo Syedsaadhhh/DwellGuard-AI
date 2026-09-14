@@ -65,6 +65,7 @@ export async function advanceIncident(
         incident.resolution_reason = "Task budget exhausted (max 2 calls reached).";
         return await store.updateIncident(incident);
       }
+      incident.task_budget_remaining = budgetRes.remaining;
 
       intent = await store.saveCallIntent({
         id: `intent_drv_${incident.id}_${Date.now()}`,
@@ -215,6 +216,7 @@ export async function advanceIncident(
         incident.resolution_reason = "Task budget exhausted before dock call.";
         return await store.updateIncident(incident);
       }
+      incident.task_budget_remaining = budgetRes.remaining;
 
       dockIntent = await store.saveCallIntent({
         id: `intent_dock_${incident.id}_${Date.now()}`,
