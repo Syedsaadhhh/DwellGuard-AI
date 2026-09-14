@@ -1,11 +1,24 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import Link from "next/link";
 import { getStore } from "@/server/context";
 import { formatLocalTime } from "@/domain/workflow/interval";
+import {
+  OPERATOR_COOKIE_NAME,
+  verifySessionToken,
+} from "@/server/auth/session";
 
 export const revalidate = 0;
 
 export default async function ReceiptPage({ params }: { params: { id: string } }) {
+  let authenticated = false;
+  try {
+    authenticated = verifySessionToken(cookies().get(OPERATOR_COOKIE_NAME)?.value);
+  } catch {
+    authenticated = false;
+  }
+  if (!authenticated) redirect("/demo");
+
   const store = getStore();
   const receipt = await store.getReceipt(params.id);
 
