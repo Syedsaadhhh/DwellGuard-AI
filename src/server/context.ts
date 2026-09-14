@@ -55,7 +55,7 @@ let demoStore: MemoryStore | null = null;
 let demoGateway: FixtureCalleGateway | null = null;
 const demoNow = new Date("2026-09-14T14:30:00.000Z");
 const demoClock: Clock = {
-  now: () => new Date(demoNow),
+  now: () => new Date(demoNow.getTime()),
   isoNow: () => demoNow.toISOString(),
 };
 
