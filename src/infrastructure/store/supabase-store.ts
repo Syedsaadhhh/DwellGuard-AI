@@ -322,6 +322,7 @@ export class SupabaseStore implements Store {
       if (ackLink) {
         ackLink.status = "valid";
         ackLink.fact = `Acknowledged by driver at ${ack.acknowledged_at}`;
+        ackLink.source = "Driver Browser Tap";
       }
       await this.saveCausalProof(existingProof);
     }
