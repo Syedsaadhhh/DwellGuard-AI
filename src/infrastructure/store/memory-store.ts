@@ -415,7 +415,6 @@ export class MemoryStore implements Store {
     const proofKey = `${token.incident_id}_v${token.receipt_version}`;
     const proof = this.causalProofs.get(proofKey);
     if (proof) {
-      proof.canonical_payload.acknowledged_at = ack.acknowledged_at;
       const ackLink = proof.chain.find((l) => l.step === "driver_received");
       if (ackLink) {
         ackLink.status = "valid";
