@@ -8,6 +8,21 @@ import { AppointmentPass } from "@/components/appointment-pass";
 import { Incident, AuthorityVersion, Observation, Receipt, HandoffToken, AuditEvent, CausalProof } from "@/domain/types";
 import { formatLocalTime } from "@/domain/workflow/interval";
 
+function toLocalDateTimeInput(date: Date) {
+  const local = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
+  return local.toISOString().slice(0, 16);
+}
+
+function suggestedAuthorityTimes(updatedEta?: string) {
+  const now = Date.now();
+  const eta = updatedEta ? new Date(updatedEta).getTime() : Number.NaN;
+  const earliestMs = Math.max(now + 5 * 60_000, Number.isFinite(eta) ? eta : 0);
+  return {
+    earliest: toLocalDateTimeInput(new Date(earliestMs)),
+    latest: toLocalDateTimeInput(new Date(earliestMs + 45 * 60_000)),
+  };
+}
+
 export default function IncidentWorkspacePage() {
   const params = useParams();
   const id = params?.id as string;
@@ -23,10 +38,16 @@ export default function IncidentWorkspacePage() {
   const [actionLoading, setActionLoading] = useState(false);
   const [showEvidence, setShowEvidence] = useState(false);
 
-  // Form states for authority authorization
-  const [earliestTime, setEarliestTime] = useState("2026-09-14T11:00");
-  const [latestTime, setLatestTime] = useState("2026-09-14T13:00");
-  const [timezone, setTimezone] = useState("America/New_York");
+  // Suggest a fresh window in the operator's browser timezone.
+  const [earliestTime, setEarliestTime] = useState(
+    () => suggestedAuthorityTimes().earliest
+  );
+  const [latestTime, setLatestTime] = useState(
+    () => suggestedAuthorityTimes().latest
+  );
+  const [timezone] = useState(
+    () => Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"
+  );
   const [feeCeiling, setFeeCeiling] = useState(150);
   const [allowSelection, setAllowSelection] = useState(true);
 
@@ -37,6 +58,11 @@ export default function IncidentWorkspacePage() {
       const data = await res.json();
       setIncident(data.incident);
       setAuthority(data.authority);
+      if (!data.authority && data.incident?.updated_eta) {
+        const suggested = suggestedAuthorityTimes(data.incident.updated_eta);
+        setEarliestTime(suggested.earliest);
+        setLatestTime(suggested.latest);
+      }
       setObservations(data.observations || []);
       setReceipt(data.receipt);
       setHandoffToken(data.handoffToken);
@@ -57,16 +83,21 @@ export default function IncidentWorkspacePage() {
     e.preventDefault();
     setActionLoading(true);
     try {
-      const offset = timezone === "America/New_York" ? "-04:00" : "Z";
+      const earliest = new Date(earliestTime);
+      const latest = new Date(latestTime);
+      if (latest <= earliest) {
+        throw new Error("Latest arrival must be after earliest arrival.");
+      }
+
       const payload = {
-        earliest_time: `${earliestTime}:00${offset}`,
-        latest_time: `${latestTime}:00${offset}`,
+        earliest_time: earliest.toISOString(),
+        latest_time: latest.toISOString(),
         timezone,
         fee_ceiling: Number(feeCeiling),
         currency: "USD",
         budget: 2,
         allow_selection_inside_interval: allowSelection,
-        expires_at: `${latestTime}:00${offset}`,
+        expires_at: latest.toISOString(),
       };
 
       const res = await fetch(`/api/incidents/${id}/authorize`, {
