@@ -4,7 +4,12 @@ import { CreateIncidentSchema } from "@/domain/schemas";
 import { Incident } from "@/domain/types";
 import { checkOperatorAuth } from "@/server/auth/session";
 
-export async function GET() {
+export async function GET(req: Request) {
+  const auth = checkOperatorAuth(req);
+  if (!auth.authorized) {
+    return NextResponse.json({ error: "Unauthorized: Operator session required." }, { status: 401 });
+  }
+
   const store = getStore();
   const incidents = await store.listIncidents();
   // Sanitize: ensure no internal token hashes are exposed in public list
