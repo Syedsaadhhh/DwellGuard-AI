@@ -53,6 +53,11 @@ export function getTokenGenerator(): TokenGenerator {
 // Public demo isolated memory store and fixture gateway
 let demoStore: MemoryStore | null = null;
 let demoGateway: FixtureCalleGateway | null = null;
+const demoNow = new Date("2026-09-14T14:30:00.000Z");
+const demoClock: Clock = {
+  now: () => new Date(demoNow),
+  isoNow: () => demoNow.toISOString(),
+};
 
 export function getDemoContext() {
   if (!demoStore) {
@@ -64,7 +69,7 @@ export function getDemoContext() {
   return {
     store: demoStore,
     gateway: demoGateway,
-    clock: globalClock,
+    clock: demoClock,
     tokenGenerator: globalTokenGenerator,
     resetDemo: (scenario: "positive" | "fee_refusal" = "positive") => {
       demoStore = new MemoryStore(true);
