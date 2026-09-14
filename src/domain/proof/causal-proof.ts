@@ -22,7 +22,7 @@ export function buildCanonicalProofPayload(
   dockObs: Observation,
   overlap: TimeInterval,
   receipt: Receipt,
-  acknowledgedAt?: string | null
+  _acknowledgedAt?: string | null
 ): CausalProofPayload {
   // Explicitly pick only the strictly permitted causal facts
   return {
@@ -42,7 +42,6 @@ export function buildCanonicalProofPayload(
     dock_conditions: dockObs.conditions || undefined,
     receipt_id: receipt.id,
     receipt_version: receipt.version,
-    acknowledged_at: acknowledgedAt || null,
   };
 }
 
