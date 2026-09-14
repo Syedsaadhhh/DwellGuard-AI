@@ -150,7 +150,7 @@ export default function PublicDemoPage() {
         <div className="flex items-center space-x-2.5">
           <span className="w-2.5 h-2.5 rounded-full bg-state-attention-text animate-pulse" />
           <strong className="text-ink-primary uppercase tracking-wide">
-            Offline replay &mdash; no call is being placed
+            Offline replay. No call is being placed
           </strong>
         </div>
         <span className="text-ink-secondary text-[13px]">
