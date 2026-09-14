@@ -12,7 +12,7 @@ export default function AboutPage() {
         </p>
       </div>
 
-      <div className="bg-canvas-paper border border-edge rounded-lg p-6 space-y-4 text-xs sm:text-sm text-ink-secondary leading-relaxed">
+      <div className="bg-canvas-paper border border-edge rounded-lg p-6 space-y-4 text-sm sm:text-sm text-ink-secondary leading-relaxed">
         <h2 className="text-base font-bold text-ink-primary">
           Spoken Constraint Relay &amp; Sequential Authority Architecture
         </h2>
@@ -41,7 +41,7 @@ export default function AboutPage() {
         </ol>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
         <div className="bg-canvas-paper border border-edge rounded-lg p-5 space-y-2">
           <h3 className="font-bold uppercase text-ink-primary">Truthful Outcomes</h3>
           <ul className="space-y-1.5 text-ink-secondary">
@@ -64,7 +64,7 @@ export default function AboutPage() {
             executes the full production domain state machine, interval math, and validation engine using an in-memory fixture transport.
             It cannot dial or consume telephony credits.
           </p>
-          <p className="text-ink-muted text-[11px] pt-1">
+          <p className="text-ink-muted text-[13px] pt-1">
             Live deployment connects to official <code className="text-ink-primary font-mono font-bold">@call-e/calle</code> server SDK when credentials are configured.
           </p>
         </div>
