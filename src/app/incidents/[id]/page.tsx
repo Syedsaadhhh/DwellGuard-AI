@@ -23,6 +23,16 @@ function suggestedAuthorityTimes(updatedEta?: string) {
   };
 }
 
+function maskPhone(phone: string) {
+  const digits = phone.replace(/\D/g, "");
+  if (digits.length < 4) return "••••";
+  const countryLength = Math.max(0, digits.length - 10);
+  const country = phone.startsWith("+") && countryLength > 0
+    ? `+${digits.slice(0, countryLength)} `
+    : "";
+  return `${country}•••• ${digits.slice(-4)}`;
+}
+
 export default function IncidentWorkspacePage() {
   const params = useParams();
   const id = params?.id as string;
@@ -295,7 +305,7 @@ export default function IncidentWorkspacePage() {
                       disabled={actionLoading}
                       className="w-full py-2.5 px-4 rounded bg-action-primary text-white font-semibold text-sm hover:bg-action-hover transition-colors shadow-sm disabled:opacity-50"
                     >
-                      {actionLoading ? "Calling / Progressing..." : "Advance Next Step &rarr;"}
+                      {actionLoading ? "Calling / Progressing..." : "Advance Next Step →"}
                     </button>
                   )}
               </div>
@@ -357,7 +367,7 @@ export default function IncidentWorkspacePage() {
                   disabled={actionLoading}
                   className="w-full py-2.5 px-4 rounded bg-action-primary text-white font-semibold text-sm hover:bg-action-hover transition-colors shadow-sm disabled:opacity-50 mt-2"
                 >
-                  {actionLoading ? "Authorizing..." : "Freeze Authority & Launch CALL-E &rarr;"}
+                  {actionLoading ? "Authorizing..." : "Freeze Authority & Launch CALL-E →"}
                 </button>
               </form>
             )}
@@ -371,12 +381,12 @@ export default function IncidentWorkspacePage() {
             <div>
               <span className="text-ink-muted block font-medium">Driver</span>
               <span className="text-ink-primary font-semibold">{incident.driver_contact_name}</span>
-              <span className="text-ink-secondary ml-2 font-mono">{incident.driver_phone}</span>
+              <span className="text-ink-secondary ml-2 font-mono">{maskPhone(incident.driver_phone)}</span>
             </div>
             <div>
               <span className="text-ink-muted block font-medium">Receiving Facility</span>
               <span className="text-ink-primary font-semibold">{incident.dock_name} ({incident.dock_contact_name})</span>
-              <span className="text-ink-secondary ml-2 font-mono">{incident.dock_phone}</span>
+              <span className="text-ink-secondary ml-2 font-mono">{maskPhone(incident.dock_phone)}</span>
             </div>
           </div>
         </div>
