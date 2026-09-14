@@ -35,7 +35,7 @@ export async function reconcileCallTask(
   await store.saveCallIntent(intent);
 
   await store.saveCallSnapshot({
-    id: `snap_${intent.id}_${Date.now()}`,
+    id: `snap_${intent.id}_${taskResult.status}`,
     intent_id: intent.id,
     calle_call_id: calleCallId,
     status: taskResult.status,
