@@ -45,7 +45,7 @@ export default async function HomePage() {
         <div className="bg-canvas-paper border-2 border-state-attention-border rounded-xl p-6 shadow-sm space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-edge pb-4">
             <div className="flex items-center space-x-3">
-              <span className="px-3 py-1 text-xs font-bold uppercase rounded bg-state-attention-bg text-state-attention-text border border-state-attention-border">
+              <span className="px-3 py-1 text-sm font-bold uppercase rounded bg-state-attention-bg text-state-attention-text border border-state-attention-border">
                 At-Risk Arrival
               </span>
               <h2 className="text-xl font-bold text-ink-primary tabular-nums">
@@ -56,32 +56,32 @@ export default async function HomePage() {
               </span>
             </div>
 
-            <div className="text-xs text-ink-muted">
+            <div className="text-sm text-ink-muted">
               Lane: <strong className="text-ink-primary">{atRiskLoad.origin} &rarr; {atRiskLoad.destination}</strong>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
             <div>
-              <span className="text-xs uppercase text-ink-muted font-medium block">Original Dock Slot</span>
+              <span className="text-sm uppercase text-ink-muted font-medium block">Original Dock Slot</span>
               <span className="text-2xl font-bold text-ink-secondary line-through decoration-state-failure-text tabular-nums">
                 {formatLocalTime(atRiskLoad.original_appointment)}
               </span>
-              <p className="text-xs text-ink-muted mt-0.5">{atRiskLoad.dock_name}</p>
+              <p className="text-sm text-ink-muted mt-0.5">{atRiskLoad.dock_name}</p>
             </div>
 
             <div>
-              <span className="text-xs uppercase text-state-attention-text font-bold block">Updated Driver ETA</span>
+              <span className="text-sm uppercase text-state-attention-text font-bold block">Updated Driver ETA</span>
               <span className="text-3xl font-extrabold text-ink-primary tabular-nums">
                 {formatLocalTime(atRiskLoad.updated_eta)}
               </span>
-              <p className="text-xs text-state-attention-text font-medium mt-0.5">Late 50 min · Dock adjustment required</p>
+              <p className="text-sm text-state-attention-text font-medium mt-0.5">Late 50 min · Dock adjustment required</p>
             </div>
 
             <div className="flex flex-col justify-center space-y-2">
-              <span className="text-xs uppercase text-ink-muted font-medium">Status</span>
+              <span className="text-sm uppercase text-ink-muted font-medium">Status</span>
               <div>
-                <span className="inline-block text-xs font-semibold px-2.5 py-1 rounded bg-canvas-subtle text-ink-primary border border-edge uppercase">
+                <span className="inline-block text-sm font-semibold px-2.5 py-1 rounded bg-canvas-subtle text-ink-primary border border-edge uppercase">
                   {atRiskLoad.status.replace(/_/g, " ")}
                 </span>
               </div>
@@ -110,13 +110,13 @@ export default async function HomePage() {
             >
               <div className="flex items-center space-x-3">
                 <span className="font-bold tabular-nums text-ink-primary">{load.load_ref}</span>
-                <span className="text-xs text-ink-secondary">{load.carrier}</span>
-                <span className="text-xs text-ink-muted">
+                <span className="text-sm text-ink-secondary">{load.carrier}</span>
+                <span className="text-sm text-ink-muted">
                   {load.origin} &rarr; {load.destination}
                 </span>
               </div>
 
-              <div className="flex items-center space-x-6 text-xs">
+              <div className="flex items-center space-x-6 text-sm">
                 <div>
                   <span className="text-ink-muted">Dock: </span>
                   <span className="font-medium text-ink-primary">{load.dock_name}</span>
@@ -127,7 +127,7 @@ export default async function HomePage() {
                 </div>
 
                 <span
-                  className={`px-2.5 py-0.5 rounded text-[11px] font-semibold uppercase ${
+                  className={`px-2.5 py-0.5 rounded text-[13px] font-semibold uppercase ${
                     load.status === "driver_received"
                       ? "bg-state-confirmed-bg text-state-confirmed-text"
                       : "bg-canvas-subtle text-ink-secondary"
@@ -138,7 +138,7 @@ export default async function HomePage() {
 
                 <Link
                   href={`/incidents/${load.id}`}
-                  className="text-action-primary font-medium hover:underline text-xs"
+                  className="text-action-primary font-medium hover:underline text-sm"
                 >
                   View
                 </Link>
