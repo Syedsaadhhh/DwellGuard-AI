@@ -191,7 +191,6 @@ export interface CausalProofPayload {
   dock_conditions?: string;
   receipt_id: string;
   receipt_version: number;
-  acknowledged_at?: string | null;
 }
 
 export interface CausalProofChainLink {
