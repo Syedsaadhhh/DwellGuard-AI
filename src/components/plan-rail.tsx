@@ -54,7 +54,7 @@ export function PlanRail({
   if (hasConfirmation) {
     whatChangedText = `Dock confirmed revised appointment at ${confirmedTimeFmt} (${receipt?.dock_name || incident.dock_name}${receipt?.door ? `, ${receipt.door}` : ""}) with no additional fee. Plan dispatched to driver.`;
   } else if (hasDriverResult) {
-    whatChangedText = `Driver can check in ${drvStartFmt}–${drvEndFmt} and authorized selection inside that range. Asking ${incident.dock_name} for one explicit time within ${drvStartFmt}–${drvEndFmt}.`;
+    whatChangedText = `Driver can check in ${drvStartFmt} to ${drvEndFmt} and authorized selection inside that range. Asking ${incident.dock_name} for one explicit time within ${drvStartFmt} to ${drvEndFmt}.`;
   } else if (authority) {
     whatChangedText = `Dispatcher authorized arrival recovery between ${authStartFmt} and ${authEndFmt}. Calling driver to verify workable check-in window.`;
   } else {
@@ -80,7 +80,7 @@ export function PlanRail({
         step: "authority",
         title: "1. Frozen Authority",
         fact: authority
-          ? `Allowed check-in ${authStartFmt}–${authEndFmt} · Fee ceiling $${authority.fee_ceiling} ${authority.currency}`
+          ? `Allowed check-in ${authStartFmt} to ${authEndFmt} · Fee ceiling $${authority.fee_ceiling} ${authority.currency}`
           : "Awaiting dispatcher arrival recovery authorization",
         source: authority ? `Dispatcher Authority v${authority.version}` : "Dispatcher Input",
         status: authValid ? "valid" : "pending",
@@ -89,7 +89,7 @@ export function PlanRail({
         step: "driver",
         title: "2. Driver Window & Permission",
         fact: isDriverValid
-          ? `Workable ${drvStartFmt}–${drvEndFmt} · Slot selection authorized`
+          ? `Workable ${drvStartFmt} to ${drvEndFmt} · Slot selection authorized`
           : isDriverRefused
           ? "Driver arrival window missing or slot selection refused"
           : "Awaiting driver spoken confirmation and permission",
@@ -100,7 +100,7 @@ export function PlanRail({
         step: "overlap",
         title: "3. Derived Overlap",
         fact: hasOverlap
-          ? `Strict mathematical overlap: ${drvStartFmt}–${drvEndFmt}`
+          ? `Strict mathematical overlap: ${drvStartFmt} to ${drvEndFmt}`
           : "Awaiting valid driver arrival limits",
         source: "DwellGuard Constraint Engine",
         status: hasOverlap ? "valid" : "pending",
@@ -184,7 +184,7 @@ export function PlanRail({
               <div className="w-3 h-3 rounded-full bg-action-primary border-2 border-canvas-paper z-10" />
               <span className="mt-2 text-[13px] text-ink-secondary uppercase font-medium">Authorized</span>
               <span className="font-medium text-ink-secondary tabular-nums">
-                {authStartFmt} – {authEndFmt}
+                {authStartFmt} to {authEndFmt}
               </span>
             </div>
           )}
@@ -202,7 +202,7 @@ export function PlanRail({
             />
             <span className="mt-2 text-[13px] text-ink-secondary uppercase font-medium">Driver Range</span>
             <span className="font-semibold text-ink-primary tabular-nums">
-              {hasDriverResult ? `${drvStartFmt} – ${drvEndFmt}` : "Waiting for driver"}
+              {hasDriverResult ? `${drvStartFmt} to ${drvEndFmt}` : "Waiting for driver"}
             </span>
           </div>
 
@@ -245,7 +245,7 @@ export function PlanRail({
             Dock Call Dispatch Preview
           </span>
           <p className="text-ink-secondary font-mono text-[13px]">
-            &quot;Driver can check in {drvStartFmt}–{drvEndFmt} and authorized selection inside that range. Asking {incident.dock_name} for one explicit time within {drvStartFmt}–{drvEndFmt}.&quot;
+            &quot;Driver can check in {drvStartFmt} to {drvEndFmt} and authorized selection inside that range. Asking {incident.dock_name} for one explicit time within {drvStartFmt} to {drvEndFmt}.&quot;
           </p>
         </div>
       )}
